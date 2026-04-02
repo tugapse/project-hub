@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "trello-app": {
+    "project-hub": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -56,10 +56,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "trello-app:build:production"
+              "buildTarget": "project-hub:build:production"
             },
             "development": {
-              "buildTarget": "trello-app:build:development"
+              "buildTarget": "project-hub:build:development"
             }
           },
           "defaultConfiguration": "development"

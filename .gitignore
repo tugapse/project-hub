@@ -2,6 +2,6 @@ projects.json
 .vscode
 backend.log
 frontend.log
-trello-app/.editorconfig
-trello-app/package-lock.json
+project-hub/.editorconfig
+project-hub/package-lock.json
 .venv

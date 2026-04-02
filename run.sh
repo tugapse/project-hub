@@ -35,7 +35,7 @@ $ACTIVATE_PYTHON
 python3 server/main.py > backend.log 2>&1 &
 
 echo "💻 Starting Frontend..."
-cd trello-app
+cd project-hub
 ng serve --host 0.0.0.0 --port $FRONTEND_PORT > ../frontend.log 2>&1 &
 cd ..
 

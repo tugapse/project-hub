@@ -46,7 +46,7 @@ Before running, ensure you have a Python virtual environment configured in the r
 
 3. **Install Frontend:**
 ```bash
-   cd trello-app
+   cd project-hub
    npm install
    cd ..
 ```
