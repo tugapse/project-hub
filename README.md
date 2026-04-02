@@ -35,26 +35,34 @@ The detail popup is designed for deep work, featuring integrated category icons,
 Before running, ensure you have a Python virtual environment configured in the root directory.
 
 1. **Clone the repository:**
+```bash
    git clone https://github.com/tugapse/project-hub.git
    cd project-hub
+```
 
 2. **Prepare Backend (Python 3.10+):**
+```bash
    python3 -m venv .venv
    source .venv/bin/activate
    pip install fastapi uvicorn pydantic
+```
 
 3. **Install Frontend:**
+```bash
    cd trello-app
    npm install
    cd ..
+```
 
 ## 🖥️ Usage
 
 The project includes a custom automation script (run.sh) to manage the full-stack lifecycle and port allocation.
 
 **To start the application:**
+```bash
 chmod +x run.sh
 ./run.sh
+```
 
 **Automated Workflow:**
 * **Database Check:** Initializes projects.json if not present.
