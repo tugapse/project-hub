@@ -42,11 +42,9 @@ Before running, ensure you have a Python virtual environment configured in the r
 
 2. **Prepare Backend (Python 3.10+):**
 ```bash
-   cd server
    python3 -m venv .venv
    source .venv/bin/activate
    pip install fastapi uvicorn pydantic
-   cd ..
 ```
 
 3. **Install Frontend:**
