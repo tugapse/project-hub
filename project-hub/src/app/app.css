@@ -244,14 +244,23 @@ header {
 }
 
 .task-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.4;
-  flex: 1;
-}
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    flex: 1;
+  }
+
+  .task-title .checklist-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -1px;
+    line-height: 1;
+  }
 
 .delete-task {
   color: var(--text-muted);
