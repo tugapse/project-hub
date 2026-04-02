@@ -1,0 +1,149 @@
+    <div class="app-wrapper">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h2>Projects</h2>
+        </div>
+        <div class="project-list">
+          <div *ngFor="let p of projects"
+               (click)="selectProject(p)"
+               [class.active]="currentProject?.id === p.id"
+               class="project-item">
+
+            <input class="proj-edit-input"
+                   *ngIf="editingProjectId === p.id"
+                   [(ngModel)]="p.name"
+                   (blur)="stopEditingProject()"
+                   (keyup.enter)="stopEditingProject()">
+
+            <div class="project-item-header" *ngIf="editingProjectId !== p.id">
+              <span class="proj-name" (dblclick)="startEditingProject(p)">
+                {{ p.name }}
+              </span>
+              <button (click)="deleteProject(p, $event)" class="del-proj">×</button>
+            </div>
+
+            <div class="progress-bar">
+              <div class="progress-bar-fill progress-todo" [style.width.%]="getProjectProgress(p).todo"></div>
+              <div class="progress-bar-fill progress-doing" [style.width.%]="getProjectProgress(p).doing"></div>
+              <div class="progress-bar-fill progress-done" [style.width.%]="getProjectProgress(p).done"></div>
+            </div>
+
+          </div>
+        </div>
+        <div class="new-project">
+          <input #pInput (keyup.enter)="addProject(pInput.value); pInput.value=''" placeholder="+ New Project">
+        </div>
+      </aside>
+
+      <main class="board-container">
+        <header *ngIf="currentProject">
+          <div class="header-left">
+            <h1>{{ currentProject.name }}</h1>
+            <div class="status-pill" [class.syncing]="isSyncing">
+              <span class="dot"></span>
+              {{ isSyncing ? 'Syncing...' : 'System Synced' }}
+            </div>
+          </div>
+          <div class="header-right">
+            <button (click)="toggleTheme()" class="theme-toggle">
+              {{ isDarkMode ? '☀️ Light' : '🌙 Dark' }}
+            </button>
+            <button (click)="clearBoard()" class="clear-btn">Clear All Tasks</button>
+          </div>
+        </header>
+
+        <div class="board-scroll">
+          <div class="board" cdkDropListGroup *ngIf="currentProject">
+            <div class="column" *ngFor="let column of currentProject.columns">
+              <div class="col-header">
+                <h3>{{ column.title }}</h3>
+                <span class="count">{{ column.tasks.length }}</span>
+              </div>
+
+              <div cdkDropList [cdkDropListData]="column.tasks" (cdkDropListDropped)="drop($event)" class="task-list">
+
+                <div *ngFor="let task of column.tasks" cdkDrag class="task-card" [style.border-left-color]="task.color" (click)="openTaskPopup(task)" [class.task-done]="column.title === 'Done'">
+                  <div class="task-header">
+                    <div class="task-title">
+                      <span class="task-icon">{{ task.icon }}</span>
+                      <span class="task-text">{{ task.content }}</span>
+                    </div>
+                    <button (click)="deleteTask(column, task); $event.stopPropagation()" class="delete-task">×</button>
+                  </div>
+
+                  <div class="task-preview" *ngIf="task.description">
+                    {{ task.description | slice:0:80 }}{{ task.description.length > 80 ? '...' : '' }}
+                  </div>
+
+                  <div class="task-footer" *ngIf="task.checklist && task.checklist.length > 0">
+                    <div class="checklist-progress">
+                      <span class="checklist-icon">☑️</span>
+                      <span>{{ getChecklistProgress(task).completed }}/{{ task.checklist.length }}</span>
+                      <div class="checklist-progress-bar">
+                        <div class="checklist-progress-bar-fill" [style.width.%]="getChecklistProgress(task).percentage"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="add-box">
+                  <input class="add-task-input" #tInput (keyup.enter)="addTask(column, tInput.value); tInput.value=''" placeholder="+ Add Task">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Task Editor Popup -->
+      <div class="popup-overlay" *ngIf="showPopup">
+        <div class="popup-modal" *ngIf="editingTask">
+          <div class="popup-header">
+            <div class="popup-title-container">
+              <span class="popup-title-icon">{{ editingTask.icon }}</span>
+              <input class="task-title-input" [(ngModel)]="editingTask.content">
+            </div>
+            <button (click)="closeTaskPopup()" class="close-popup">×</button>
+          </div>
+          <div class="popup-content-wrapper">
+            <div class="popup-body">
+              <textarea [(ngModel)]="editingTask.description" placeholder="Add a description..." class="desc-area"></textarea>
+              <div class="notes-section">
+                <h4><span class="notes-icon-header">🗒️</span> Notes</h4>
+                <textarea [(ngModel)]="editingTask.notes" (blur)="saveTask()" placeholder="Add some notes..." class="notes-area"></textarea>
+              </div>
+            </div>
+            <div class="popup-sidebar">
+              <div class="checklist-section">
+                <h4><span class="checklist-icon-header">☑️</span> Checklist</h4>
+                <div class="checklist-progress-bar-container" *ngIf="editingTask.checklist?.length">
+                  <div class="checklist-progress-bar-fill" [style.width.%]="getChecklistProgress(editingTask).percentage"></div>
+                </div>
+                <div class="checklist-items">
+                  <div *ngFor="let item of editingTask.checklist; let i = index" class="checklist-item">
+                    <input type="checkbox" [(ngModel)]="item.completed" (change)="saveTask()">
+                    <input type="text" class="checklist-item-text" [(ngModel)]="item.text" (blur)="saveTask()" (keyup.enter)="saveTask()">
+                    <button (click)="deleteChecklistItem(i)" class="delete-checklist-item">×</button>
+                  </div>
+                </div>
+                <div class="add-checklist-item">
+                  <input #checklistItemInput (keyup.enter)="addChecklistItem(checklistItemInput.value); checklistItemInput.value=''" placeholder="+ Add an item">
+                </div>
+              </div>
+              <div class="task-tools">
+                <div class="tool-row">
+                  <span *ngFor="let c of colors" [style.background]="c" (click)="updateTask('color', c)" class="color-dot" [class.selected]="editingTask.color === c"></span>
+                </div>
+                <div class="tool-row">
+                  <span *ngFor="let i of icons" (click)="updateTask('icon', i)" class="icon-option" [class.selected]="editingTask.icon === i">{{ i }}</span>
+                </div>
+              </div>
+              <div class="popup-footer">
+                <button (click)="cancelEditingTask()" class="btn-cancel">Cancel</button>
+                <button (click)="closeTaskPopup()" class="btn-save">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
