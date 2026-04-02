@@ -1,0 +1,153 @@
+
+    /* Popup Styles */
+    .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+    .popup-modal { background: var(--bg-card); width: 900px; max-width: 90vw; border-radius: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; border: 1px solid var(--border); padding-bottom: 0; }
+    .popup-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid var(--border); }
+    .popup-title-container { display: flex; align-items: center; gap: 12px; flex: 1; margin-right: 16px; }
+    .popup-title-icon { font-size: 1.5rem; line-height: 1; }
+    .task-title-input { font-size: 1.2rem; font-weight: 700; flex: 1; }
+    .close-popup { font-size: 24px; color: var(--text-muted); background: none; border: none; cursor: pointer; padding: 0; line-height: 1; }
+
+    .popup-content-wrapper {
+      display: flex;
+      gap: 16px; /* space between main content and sidebar */
+      padding: 16px 24px 24px 24px; /* Add padding around the content */
+      overflow: hidden; /* Prevent content from breaking modal boundaries */
+    }
+
+    .popup-body {
+      flex: 1; /* Takes up the remaining space */
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow: hidden; /* Prevents children from breaking flex layout */
+    }
+    .popup-body .desc-area { min-height: 120px; }
+    .popup-body textarea {
+      resize: vertical; /* Allow vertical resize only */
+    }
+
+    .popup-sidebar {
+      width: 330px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .popup-body .notes-section {
+      /* No extra margin needed due to popup-body gap */
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .notes-section h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 4px; }
+    .notes-icon-header { font-size: 1.1rem; }
+    .notes-area { min-height: 120px; flex: 1; }
+
+    .task-tools {
+      background-color: var(--bg-column);
+      padding: 12px;
+      border-radius: 8px;
+    }
+    .task-tools .tool-row:not(:last-child) {
+      margin-bottom: 10px;
+    }
+
+
+    .icon-option { cursor: pointer; transition: all 0.2s; padding: 4px 8px; border-radius: 3px; display: inline-flex; align-items: center; justify-content: center; }
+    .icon-option:hover { background: var(--bg-card); transform: scale(1.1); }
+    .icon-option.selected {
+      background: var(--bg-card);
+      box-shadow: 0 0 8px -2px var(--neon-blue);
+    }
+
+    .popup-footer {
+      display: flex;
+      flex-direction: column; /* Stack buttons vertically */
+      gap: 10px;
+      padding: 0;
+      border-top: none;
+      margin-top: auto; /* Push to the bottom of the sidebar */
+    }
+    .popup-footer button {
+        width: 100%; /* Make buttons full width of sidebar */
+    }
+    .btn-save { background: var(--neon-blue); color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+    .btn-cancel { background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 10px 20px; border-radius: 6px; cursor: pointer; }
+
+    /* Checklist Styles */
+    .task-footer {
+      margin-top: 12px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    .checklist-progress {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .checklist-icon {
+      font-size: 14px;
+    }
+
+    .checklist-progress-bar {
+      flex: 1;
+      height: 6px;
+      background: rgba(128, 128, 128, 0.15);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .checklist-progress-bar-fill {
+      height: 100%;
+      background: var(--neon-blue);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    .popup-sidebar .checklist-section {
+      background-color: var(--bg-column);
+      padding: 8px 12px 12px;
+      border-radius: 8px;
+    }
+    .checklist-section h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; padding-left: 6px; }
+    .checklist-icon-header { font-size: 1.1rem; }
+    .checklist-progress-bar-container { height: 8px; background: var(--bg-main); border-radius: 4px; overflow: hidden; margin-bottom: 12px; margin-left: 6px; }
+    .checklist-items { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; max-height: 200px; overflow-y: auto; padding-right: 5px; }
+    .checklist-item { display: flex; align-items: center; gap: 5px; padding: 6px; border-radius: 6px; background: var(--bg-main); }
+    .checklist-item input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+    .checklist-item-text { flex: 1; background: transparent !important; border: none !important; padding: 4px 8px !important; font-size: 13px; }
+    .checklist-item-text:focus { background: var(--bg-main) !important; }
+    .delete-checklist-item { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px; opacity: 0.5; }
+    .delete-checklist-item:hover { color: var(--neon-red); opacity: 1; }
+    .add-checklist-item input { background: transparent !important; border: none !important; width: 100%; padding-left: 0 !important; font-size: 13px; opacity: 0.7; }
+    .add-checklist-item input:focus { opacity: 1; }
+    input, textarea { background: var(--input-bg) !important; border: 1px solid var(--border) !important; color: var(--text-main) !important; padding: 12px !important; border-radius: 6px !important; box-sizing: border-box; outline: none; }
+    .clear-btn { background: transparent; border: 1px solid var(--neon-red); color: var(--neon-red); border-radius: 6px; padding: 8px 16px; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .theme-toggle { background: var(--bg-column); border: 1px solid var(--border); color: var(--text-main); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600; margin-right: 10px; }
+    .del-proj { color: var(--text-muted); border: none; background: none; cursor: pointer; font-size: 18px; }
+
+    .tool-row { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
+    .color-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid rgba(0,0,0,0.1);
+      transition: all 0.2s ease;
+      outline: 2px solid transparent;
+      outline-offset: 2px;
+    }
+    .color-dot:hover { transform: scale(1.2); }
+    .color-dot.selected { outline-color: var(--neon-blue); }
+    .count { font-size: 0.7rem; background: rgba(128,128,128,0.1); padding: 2px 8px; border-radius: 10px; color: var(--text-muted); }
+
+    input, textarea { background: var(--input-bg) !important; border: 1px solid var(--border) !important; color: var(--text-main) !important; padding: 12px !important; border-radius: 6px !important; box-sizing: border-box; outline: none; }
+    .clear-btn { background: transparent; border: 1px solid var(--neon-red); color: var(--neon-red); border-radius: 6px; padding: 8px 16px; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .theme-toggle { background: var(--bg-column); border: 1px solid var(--border); color: var(--text-main); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600; margin-right: 10px; }
+    .del-proj { color: var(--text-muted); border: none; background: none; cursor: pointer; font-size: 18px; }

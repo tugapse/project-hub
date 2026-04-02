@@ -11,8 +11,6 @@ A high-performance, minimalist **Kanban Task Management** application built with
 * **Fluid Kanban Interface:** Effortless task management across customizable status columns (To Do, Doing, Done).
 * **Refined Task Detail Modal:** Optimized 60/40 split layout with a "Sharp-Edge" IDE-inspired design.
 * **Reactive Checklists:** Real-time sub-task tracking with automated progress calculation and persistent state.
-* **High-Density UI:** Expanded workspace for Descriptions and Notes, maximizing horizontal space for complex documentation.
-* **Unified Control:** Single-script orchestration for Backend, Frontend, and consolidated Logging.
 
 ### 📸 Visual Preview
 
@@ -28,7 +26,6 @@ The detail popup is designed for deep work, featuring integrated category icons,
 * **Frontend:** Angular (running on port 4200)
 * **Backend:** FastAPI / Python 3 (running on port 8000)
 * **Data Persistence:** Pydantic-validated JSON storage (projects.json) with in-memory caching.
-* **Security:** CORS-enabled middleware for seamless cross-origin communication between services.
 
 ## 📦 Installation & Setup
 
@@ -73,5 +70,5 @@ chmod +x run.sh
 **To stop:** Press Ctrl+C. The script's cleanup() function will trap the signal and kill both server processes automatically to prevent port hanging.
 
 ---
-*Created as part of a personal exploration into high-density UI layouts and agentic code generation workflows.*
-*Maintained by tugapse.*
+*Created as part of a personal tooling and learning.*
+*Maintained by Fabio Almeida.*

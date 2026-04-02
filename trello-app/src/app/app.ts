@@ -8,45 +8,21 @@ import {
   moveItemInArray,
   transferArrayItem
 } from '@angular/cdk/drag-drop';
+import { TaskModalComponent } from "../components/modal/modal";
+import { TASK_COLORS, TASK_ICONS } from '../entities/icons-colors';
+import { ApiService } from '../services/api.service';
 
-// --- Model Interfaces ---
-interface ChecklistItem {
-  text: string;
-  completed: boolean;
-}
-
-interface Task {
-  id: number;
-  content: string;
-  description: string;
-  color: string;
-  icon: string;
-  checklist: ChecklistItem[];
-  notes: string;
-  isEditing?: boolean;
-}
-
-interface Column {
-  id: string;
-  title: string;
-  tasks: Task[];
-}
-
-interface Project {
-  id: string;
-  name: string;
-  columns: Column[];
-}
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule, DragDropModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, DragDropModule, HttpClientModule, TaskModalComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })
 export class AppComponent implements OnInit {
-  private http = inject(HttpClient);
+  private apiService = inject(ApiService);
+
   private readonly API_URL = 'http://localhost:8000/projects';
 
   projects: Project[] = [];
@@ -58,36 +34,23 @@ export class AppComponent implements OnInit {
   originalTask: Task | null = null;
   showPopup = false;
 
-  colors = ['#61bd4f', '#f2d600', '#ff9f1a', '#eb5a46', '#c377e0', '#0079bf'];
-  icons = ['📝', '🚀', '🧪', '🐞', '✅', '🔥', '⚙️', '💬'];
+  colors = TASK_COLORS;
+  icons = TASK_ICONS;
 
   ngOnInit() {
-    const savedTheme = localStorage.getItem('preferred-theme') || 'dark';
+    const savedTheme = localStorage.getItem('preferred-theme') || 'light';
     this.isDarkMode = savedTheme === 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
     this.fetchData();
   }
 
   fetchData() {
-    this.http.get<Project[]>(this.API_URL).subscribe({
-      next: (data) => {
-        this.projects = data.map(project => ({
-          ...project,
-          columns: project.columns.map(column => ({
-            ...column, // Ensure checklist is initialized if not present in fetched data
-            tasks: column.tasks.map(task => ({ ...task, checklist: task.checklist || [], notes: task.notes || '' }))
-          }))
-        }));
-        const lastId = localStorage.getItem('last-project-id');
-        this.currentProject = this.projects.find(p => p.id === lastId) || this.projects[0] || null;
-      },
-      error: (err) => console.error('Connection failed.', err)
-    });
+    this.apiService.fetchData().subscribe(projects=>this.projects=projects);
   }
 
   save() {
     this.isSyncing = true;
-    this.http.post(this.API_URL, this.projects).subscribe({
+    this.apiService.save(this.projects).subscribe({
       next: () => {
         this.isSyncing = false;
         if (this.currentProject) localStorage.setItem('last-project-id', this.currentProject.id);
@@ -205,7 +168,7 @@ export class AppComponent implements OnInit {
     if (!this.editingTask) return;
     if (key === 'color') this.editingTask.color = value;
     if (key === 'icon') this.editingTask.icon = value;
-    this.saveTask(); // Save changes immediately
+    this.saveTask(this.editingTask); // Save changes immediately
   }
 
   deleteTask(col: Column, task: Task) {
@@ -246,14 +209,14 @@ export class AppComponent implements OnInit {
         this.editingTask.checklist = [];
       }
       this.editingTask.checklist.push({ text, completed: false });
-      this.saveTask();
+      this.saveTask(this.editingTask);
     }
   }
 
   deleteChecklistItem(index: number) {
     if (this.editingTask && this.editingTask.checklist) {
       this.editingTask.checklist.splice(index, 1);
-      this.saveTask();
+      this.saveTask(this.editingTask);
     }
   }
 
@@ -267,7 +230,8 @@ export class AppComponent implements OnInit {
   }
 
   // This is for auto-saving on blur, etc.
-  saveTask() {
+  saveTask(task:Task) {
+    debugger
     this._updateTaskInProjects();
     this.save();
   }

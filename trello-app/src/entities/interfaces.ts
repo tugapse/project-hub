@@ -4,6 +4,7 @@ interface ChecklistItem {
 }
 
 interface Task {
+  notes: any;
   id: number;
   content: string;
   description: string;

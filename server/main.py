@@ -2,8 +2,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
+from pathlib import Path
 import json
 import os
+
+# --- Configuration ---
+# Use environment variable or default to a local path
+PROJECTS_JSON_FILE = os.getenv("PROJECT_HUB_JSON_FILE", "./data/projects.json")
+DB_FILE = Path(PROJECTS_JSON_FILE)
 
 app = FastAPI()
 
@@ -17,7 +23,6 @@ app.add_middleware(
 )
 
 # --- Data Models ---
-
 class ChecklistItem(BaseModel):
     text: str
     completed: bool
@@ -42,58 +47,53 @@ class Project(BaseModel):
     name: str
     columns: List[Column]
 
-# --- In-Memory Storage ---
-# --- GLOBAL STORAGE ---
-DB_FILE = "projects.json"
+# --- Global Storage ---
 PROJECTS_STORAGE: List[Project] = []
 
 def load_from_disk():
     global PROJECTS_STORAGE
-    if os.path.exists(DB_FILE):
+    
+    # 1. Create the folder if it doesn't exist
+    DB_FILE.parent.mkdir(parents=True, exist_ok=True)
+    
+    # 2. Check if file exists and is not empty
+    if DB_FILE.exists() and DB_FILE.stat().st_size > 0:
         try:
-            with open(DB_FILE, "r") as f:
+            with open(DB_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                # Ensure we handle empty files safely
-                if not data:
-                    PROJECTS_STORAGE = []
-                else:
-                    PROJECTS_STORAGE = [Project(**p) for p in data]
-            print(f"✅ Loaded {len(PROJECTS_STORAGE)} projects into RAM.")
+                PROJECTS_STORAGE = [Project(**p) for p in data] if data else []
+            print(f"✅ Loaded {len(PROJECTS_STORAGE)} projects from {DB_FILE}")
         except Exception as e:
             print(f"⚠️ Load Error: {e}")
             PROJECTS_STORAGE = []
     else:
-        # Create empty file if it doesn't exist to prevent read errors
-        with open(DB_FILE, "w") as f:
-            json.dump([], f)
-        PROJECTS_STORAGE = []
-
-# CRITICAL: Run this BEFORE the FastAPI app starts
-load_from_disk()
+        # 3. Initialize file if missing or empty
+        save_to_disk() 
+        print(f"📁 Initialized new DB at {DB_FILE}")
 
 def save_to_disk():
     """Dumps the current in-memory state to the JSON file."""
     try:
-        with open(DB_FILE, "w") as f:
-            # Convert models to dictionaries for JSON serialization
+        # Ensure directory exists before saving
+        DB_FILE.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(DB_FILE, "w", encoding="utf-8") as f:
             data = [p.model_dump() for p in PROJECTS_STORAGE]
             json.dump(data, f, indent=4)
     except Exception as e:
         print(f"❌ Failed to save to disk: {e}")
 
-# Trigger initial load
+# Initial Load
 load_from_disk()
 
 # --- API Routes ---
 
 @app.get("/projects", response_model=List[Project])
 def get_projects():
-    """Returns the current state from memory."""
     return PROJECTS_STORAGE
 
 @app.post("/projects")
 def update_projects(incoming_projects: List[Project]):
-    """Updates memory and triggers a background disk save."""
     global PROJECTS_STORAGE
     PROJECTS_STORAGE = incoming_projects
     save_to_disk()
