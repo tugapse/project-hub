@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "build-to-server": "ng build --base-href /hub/ && rm -rf  ../server/frontend/* && cp -r dist/project-hub/browser/* ../server/frontend"
   },
   "prettier": {
     "printWidth": 100,
