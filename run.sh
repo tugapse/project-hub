@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # --- CONFIGURATION ---
-ACTIVATE_PYTHON="source .venv/bin/activate" 
+FOLDER=$(dirname -- $(realpath -- "$0"))
+ACTIVATE_PYTHON="source $FOLDER/.venv/bin/activate"
+
 BACKEND_PORT=9998
 
 # --- CLEANUP FUNCTION ---
@@ -26,7 +28,7 @@ echo "" > backend.log
 echo "📡 Starting Backend..."
 $ACTIVATE_PYTHON
 
-python3 server/main.py > backend.log 2>&1 &
+python3 $FOLDER/server/main.py > backend.log 2>&1 &
 
 echo "📖 Streaming logs (Ctrl+C to stop everything):"
 echo "---------------------------------------"
