@@ -1,18 +1,21 @@
-<div class="task-card" *ngIf="task">
-  <div class="task-card-header">
-    <mat-icon>{{ task.icon }}</mat-icon>
-    <span class="task-content">{{ task.content }}</span>
-    <button mat-icon-button class="delete-button" (click)="deleteTask($event)">
-      <mat-icon>delete</mat-icon>
-    </button>
+<div class="task-header">
+  <div class="task-title">
+    <span class="task-icon">{{ task.icon }}</span>
+    <span class="task-text">{{ task.content }}</span>
   </div>
-  <div class="task-card-body">
-    <p class="task-description">{{ truncatedDescription }}</p>
-  </div>
-  <div class="task-card-footer" *ngIf="task.checklist && task.checklist.length > 0">
-    <div class="checklist-progress">
-      <mat-icon>check_box</mat-icon>
-      <span>{{ checklistProgress }}</span>
+  <button (click)="deleteTask($event)" class="delete-task">×</button>
+</div>
+
+<div class="task-preview" *ngIf="task.description">
+  {{ task.description | slice:0:80 }}{{ task.description.length > 80 ? '...' : '' }}
+</div>
+
+<div class="task-footer" *ngIf="task.checklist && task.checklist.length > 0">
+  <div class="checklist-progress">
+    <span class="checklist-todo">TODO: </span>
+    <span>{{ checklistProgress?.completed }}/{{ checklistProgress?.total }}</span>
+    <div class="progress-bar">
+      <div class="progress-bar-fill" [style.width.%]="checklistProgress?.percentage"></div>
     </div>
   </div>
 </div>

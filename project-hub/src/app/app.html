@@ -1,28 +1,18 @@
-<div class="app-wrapper">
-      <app-sidebar
-        [projects]="projects"
-        [currentProject]="currentProject"
-        (projectSelected)="handleProjectSelected($event)"
-        (projectAdded)="handleProjectAdded($event)"
-        (projectDeleted)="handleProjectDeleted($event)"
-        (projectUpdated)="handleProjectUpdated()"
-      ></app-sidebar>
+<div class="app-wrapper" [class.sidebar-collapsed]="isSidebarCollapsed">
+  <button (click)="toggleSidebar()" class="sidebar-toggle-btn">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+    </svg>
+  </button>
 
-      <app-main-view
-        *ngIf="currentProject"
-        [currentProject]="currentProject"
-        [isSyncing]="isSyncing"
-        [isDarkMode]="isDarkMode"
-        (themeToggled)="toggleTheme()"
-        (stateChanged)="save()"
-        (taskOpened)="openTaskPopup($event)"
-        (taskDeleted)="deleteTask($event.column, $event.task)"
-      ></app-main-view>
+  <app-sidebar [isCollapsed]="isSidebarCollapsed" [projects]="projects" [currentProject]="currentProject"
+    (projectSelected)="handleProjectSelected($event)" (projectAdded)="handleProjectAdded($event)"
+    (projectDeleted)="handleProjectDeleted($event)" (projectUpdated)="handleProjectUpdated()"></app-sidebar>
 
-    <task-modal
-      [showPopup]="showPopup"
-      [editingTask]="editingTask"
-      (close)="handleModalClosed()"
-      (update)="handleTaskUpdate($event)"
-    ></task-modal>
-    </div>
+  <app-main-view class="main-content" *ngIf="currentProject" [currentProject]="currentProject" [isSyncing]="isSyncing"
+    [isDarkMode]="isDarkMode" (themeToggled)="toggleTheme()" (stateChanged)="save()"
+    (taskOpened)="openTaskPopup($event)" (taskDeleted)="deleteTask($event.column, $event.task)"></app-main-view>
+
+  <task-modal [showPopup]="showPopup" [editingTask]="editingTask" (close)="handleModalClosed()"
+    (update)="handleTaskUpdate($event)"></task-modal>
+</div>

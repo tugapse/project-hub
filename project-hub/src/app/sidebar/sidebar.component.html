@@ -1,35 +1,37 @@
-<div class="sidebar-header">
-  <h2>Projects</h2>
-</div>
-<div class="project-list">
-  <div *ngFor="let p of projects"
-       (click)="selectProject(p)"
-       [class.active]="currentProject?.id === p.id"
-       class="project-item">
+<div class="sidebar-content" [class.collapsed]="isCollapsed">
+  <div class="sidebar-header">
+    <h2>Projects</h2>
+  </div>
+  <div class="project-list">
+    <div *ngFor="let p of projects"
+         (click)="selectProject(p)"
+         [class.active]="currentProject?.id === p.id"
+         class="project-item">
 
-    <div class="project-item-header">
-      <span *ngIf="p.id !== currentProject?.id" class="project-name">{{ p.name }}</span>
-      <input class="proj-edit-input"
-             *ngIf="p.id === currentProject?.id"
-             type="text"
-             [(ngModel)]="p.name"
-             (blur)="updateProject()"
-             (keyup.enter)="$event.target.blur()"
-             placeholder="Project Name">
-      <button *ngIf="p.id === currentProject?.id" (click)="deleteProject(p, $event)" class="delete-proj-btn">&times;</button>
-    </div>
-    <div class="progress-bar-container">
-      <div class="progress-segment todo" [style.width.%]="calculateProgress(p)['todo']"></div>
-      <div class="progress-segment doing" [style.width.%]="calculateProgress(p)['doing']"></div>
-      <div class="progress-segment done" [style.width.%]="calculateProgress(p)['done']"></div>
+      <div class="project-item-header">
+        <span *ngIf="p.id !== currentProject?.id" class="project-name">{{ p.name }}</span>
+        <input class="proj-edit-input"
+               *ngIf="p.id === currentProject?.id"
+               type="text"
+               [(ngModel)]="p.name"
+               (blur)="updateProject()"
+               (keyup.enter)="$event.target.blur()"
+               placeholder="Project Name">
+        <button *ngIf="p.id === currentProject?.id" (click)="deleteProject(p, $event)" class="delete-proj-btn">&times;</button>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-segment todo" [style.width.%]="calculateProgress(p)['todo']"></div>
+        <div class="progress-segment doing" [style.width.%]="calculateProgress(p)['doing']"></div>
+        <div class="progress-segment done" [style.width.%]="calculateProgress(p)['done']"></div>
+      </div>
     </div>
   </div>
-</div>
-<div class="sidebar-footer">
-  <input class="add-proj-input"
-         type="text"
-         [(ngModel)]="newProjectName"
-         (keyup.enter)="addProject()"
-         placeholder="Add new project...">
-  <button class="add-proj-btn" (click)="addProject()">+</button>
+  <div class="sidebar-footer">
+    <input class="add-proj-input"
+           type="text"
+           [(ngModel)]="newProjectName"
+           (keyup.enter)="addProject()"
+           placeholder="Add new project...">
+    <button class="add-proj-btn" (click)="addProject()">+</button>
+  </div>
 </div>

@@ -40,6 +40,9 @@
 
 .app-wrapper {
   display: flex;
+  position: relative; /* Add positioning context for absolute children */
+  width: 100%;
+  background-color: var(--bg-main);
   height: 100vh;
   background: var(--bg-main);
   color: var(--text-main);
@@ -47,12 +50,6 @@
   overflow: hidden;
   transition: background 0.3s;
 }
-
-
-
-
-
-
 
 .del-proj {
   color: var(--text-muted);
@@ -72,14 +69,47 @@ input {
   outline: none;
 }
 
-/* Drag & Drop */
-.cdk-drag-preview {
-  box-sizing: border-box;
-  border-radius: 10px;
-  box-shadow: 0 12px 24px rgba(0,0,0,0.5);
+
+
+.main-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  transition: margin-left 0.3s ease-in-out;
+  margin-left: 280px; /* Default margin to match sidebar width */
+  position: relative;
 }
 
-.cdk-drag-placeholder { opacity: 0; }
-.cdk-drop-list-dragging .task-card:not(.cdk-drag-placeholder) {
-  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+.app-wrapper.sidebar-collapsed .main-content {
+  margin-left: 0;
+}
+
+.sidebar-toggle-btn {
+  position: absolute; /* Use absolute to position relative to .app-wrapper */
+  top: 15px;
+  left: 260px; /* Adjust to be just inside the sidebar */
+  z-index: 1001; /* Ensure it's above the sidebar */
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.sidebar-toggle-btn:hover {
+  background: var(--bg-main);
+  color: var(--neon-blue);
+}
+
+/* Correctly target the button when the wrapper has the collapsed class */
+.app-wrapper.sidebar-collapsed .sidebar-toggle-btn {
+  left: 3px; /* Position when sidebar is collapsed */
+  transform: rotate(180deg);
 }

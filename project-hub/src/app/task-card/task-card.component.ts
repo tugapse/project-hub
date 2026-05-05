@@ -72,6 +72,7 @@ export class TaskCardComponent {
   }
 
   deleteTask(event: MouseEvent) {
+    debugger
     event.stopPropagation();
     this.taskDeleted.emit(this.task);
   }

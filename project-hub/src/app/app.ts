@@ -23,6 +23,7 @@ export class AppComponent implements OnInit {
   currentProject: Project | null = null;
   isSyncing = false;
   isDarkMode = true;
+  isSidebarCollapsed = false;
 
   // Modal State
   editingTask: Task | null = null;
@@ -100,6 +101,7 @@ export class AppComponent implements OnInit {
   }
 
   deleteTask(column: Column, task: Task) {
+    debugger
     if (!this.currentProject) return;
 
     const taskIndex = column.tasks.findIndex(t => t.id === task.id);
@@ -135,5 +137,9 @@ export class AppComponent implements OnInit {
     const theme = this.isDarkMode ? 'dark' : 'light';
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('preferred-theme', theme);
+  }
+
+  toggleSidebar() {
+    this.isSidebarCollapsed = !this.isSidebarCollapsed;
   }
 }

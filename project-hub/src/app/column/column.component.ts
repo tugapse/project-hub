@@ -25,6 +25,7 @@ export class ColumnComponent {
   }
 
   deleteTask(task: Task) {
+    debugger
     if (this.column) {
       this.taskDeleted.emit({ column: this.column, task });
     }

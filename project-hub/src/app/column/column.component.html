@@ -1,4 +1,4 @@
-<div *ngIf="column">
+<div class="column" *ngIf="column">
   <div class="col-header">
     <h3>{{ column.title }}</h3>
     <span class="count">{{ column.tasks.length }}</span>
@@ -15,7 +15,7 @@
                    [style.border-left-color]="task.color"
                    (click)="openTaskPopup(task)"
                    [class.task-done]="column.title === 'Done'"
-                   (deleteRequest)="deleteTask(task)">
+                   (taskDeleted)="deleteTask(task)">
     </app-task-card>
 
     <div class="add-box">

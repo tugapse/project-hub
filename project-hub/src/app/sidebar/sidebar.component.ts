@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostBinding } from '@angular/core';
 import { Project, Column, Task } from '../entities/types';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 export class SidebarComponent {
   @Input() projects: Project[] = [];
   @Input() currentProject: Project | null = null;
+  @Input() isCollapsed = false;
 
   @Output() projectSelected = new EventEmitter<Project>();
   @Output() projectAdded = new EventEmitter<string>();
@@ -21,6 +22,12 @@ export class SidebarComponent {
 
   newProjectName = '';
   editingProject: Project | null = null;
+
+
+  @HostBinding('class.collapsed')
+  get isDone() {
+   return this.isCollapsed
+  }
 
   calculateProgress(project: Project): { [key: string]: number } {
     const allTasks: Task[] = project.columns.flatMap((column: Column) => column.tasks);

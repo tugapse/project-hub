@@ -1,12 +1,36 @@
 :host {
+  position: absolute;
   width: 280px;
   background: var(--bg-sidebar);
-  padding: 20px 0; /* Vertical padding only */
+  /* padding is now on .sidebar-content */
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   height: 100vh;
   box-sizing: border-box;
+  transition: transform 0.3s ease-in-out; /* Animate the transform property */
+  overflow-x: hidden;
+  z-index: 1000; /* Ensure sidebar is on top, but below the toggle button */
+}
+
+:host(.collapsed) {
+  transform: translateX(-100%); /* Slide the sidebar out of view */
+  border-right-color: transparent;
+}
+
+.sidebar-content {
+  /* width: 280px; */ /* REMOVED: This was preventing the slide animation */
+  box-sizing: border-box;
+  padding: 20px 0; /* Vertical padding only */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.2s ease-in-out;
+}
+
+:host(.collapsed) .sidebar-content {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .sidebar-header {
