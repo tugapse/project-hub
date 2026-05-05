@@ -1,0 +1,17 @@
+<main class="board-container">
+  <app-header
+    *ngIf="currentProject"
+    [currentProject]="currentProject"
+    [isSyncing]="isSyncing"
+    [isDarkMode]="isDarkMode"
+    (themeToggled)="onToggleTheme()"
+  ></app-header>
+
+  <app-board
+    *ngIf="currentProject"
+    [currentProject]="currentProject"
+    (stateChanged)="onStateChanged()"
+    (taskOpened)="onTaskOpened($event)"
+    (taskDeleted)="onTaskDeleted($event)"
+  ></app-board>
+</main>

@@ -1,0 +1,35 @@
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h2>Projects</h2>
+  </div>
+  <div class="project-list">
+    <div *ngFor="let p of projects"
+         (click)="selectProject(p)"
+         [class.active]="currentProject?.id === p.id"
+         class="project-item">
+
+      <input class="proj-edit-input"
+             *ngIf="editingProjectId === p.id"
+             [(ngModel)]="p.name"
+             (blur)="stopEditingProject()"
+             (keyup.enter)="stopEditingProject()">
+
+      <div class="project-item-header" *ngIf="editingProjectId !== p.id">
+        <span class="proj-name" (dblclick)="startEditingProject(p)">
+          {{ p.name }}
+        </span>
+        <button (click)="deleteProject(p, $event)" class="del-proj"></button>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-bar-fill progress-todo" [style.width.%]="getProjectProgress(p).todo"></div>
+        <div class="progress-bar-fill progress-doing" [style.width.%]="getProjectProgress(p).doing"></div>
+        <div class="progress-bar-fill progress-done" [style.width.%]="getProjectProgress(p).done"></div>
+      </div>
+
+    </div>
+  </div>
+  <div class="new-project">
+    <input #pInput (keyup.enter)="addProject(pInput.value); pInput.value=''" placeholder="+ New Project">
+  </div>
+</aside>

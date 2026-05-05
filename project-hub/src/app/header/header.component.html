@@ -1,0 +1,17 @@
+<header>
+  <div class="header-left">
+    <!-- The h1 is now inside an ng-container to safely handle the nullable currentProject -->
+    <ng-container *ngIf="currentProject">
+      <h1>{{ currentProject.name }}</h1>
+    </ng-container>
+    <div class="status-pill" [class.syncing]="isSyncing">
+      <span class="dot"></span>
+      {{ isSyncing ? 'Syncing...' : 'System Synced' }}
+    </div>
+  </div>
+  <div class="header-right">
+    <button (click)="onToggleTheme()" class="theme-toggle">
+      {{ isDarkMode ? ' Light' : ' Dark' }}
+    </button>
+  </div>
+</header>

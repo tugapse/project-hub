@@ -1,0 +1,80 @@
+:host {
+  background: var(--bg-card);
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  border-left: 4px solid var(--text-muted);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border);
+  display: block;
+}
+
+:host(:hover) {
+  transform: translateY(-3px) scale(1.02);
+  border-left-color: var(--neon-blue);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+:host(.task-done) {
+  border-left-color: #61bd4f;
+  opacity: 0.7;
+}
+
+:host(.task-done) .task-title {
+  text-decoration: line-through;
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.task-title {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  flex: 1;
+}
+
+.task-title .checklist-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -1px;
+  line-height: 1;
+}
+
+.delete-task {
+  color: var(--text-muted);
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.5;
+  transition: 0.2s;
+}
+
+.delete-task:hover {
+  opacity: 1;
+  color: var(--neon-red);
+}
+
+.task-preview {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  opacity: 0.7;
+  line-height: 1.4;
+}

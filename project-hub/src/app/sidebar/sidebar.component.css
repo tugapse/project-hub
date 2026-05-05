@@ -1,0 +1,186 @@
+:host {
+  width: 280px;
+  background: var(--bg-sidebar);
+  padding: 20px 0; /* Vertical padding only */
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+.sidebar-header {
+  padding: 0 20px;
+  margin-bottom: 25px;
+  flex-shrink: 0;
+}
+
+.sidebar-header h2 {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.project-list {
+  flex: 1; /* Allows the list to grow and fill available space */
+  overflow-y: auto; /* Adds a scrollbar if projects overflow */
+  padding: 0 20px;
+}
+
+.project-item {
+  display: flex;
+  flex-direction: column; /* Stack header and progress bar vertically */
+  align-items: stretch; /* Stretch children to fill width */
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: rgba(128, 128, 128, 0.05);
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.project-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 8px; /* Space between header and progress bar */
+}
+
+.project-item.active {
+  border-color: var(--neon-blue);
+  background: rgba(56, 189, 248, 0.1);
+  color: var(--neon-blue);
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.project-item .project-item-header span {
+  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.progress-bar-container {
+  display: flex;
+  height: 6px;
+  width: 100%;
+  background-color: var(--bg-column);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-segment {
+  height: 100%;
+  transition: width 0.3s ease-in-out;
+}
+
+.progress-segment.todo {
+  background-color: var(--neon-red);
+}
+
+.progress-segment.doing {
+  background-color: var(--neon-yellow);
+}
+
+.progress-segment.done {
+  background-color: var(--neon-green);
+}
+
+.proj-edit-input {
+  background: transparent !important;
+  border: none !important;
+  color: var(--neon-blue) !important;
+  font-weight: bold;
+  padding: 0 !important;
+  width: 100%; /* Take full width of parent */
+  outline: none;
+  font-size: 1rem;
+}
+
+.sidebar-footer {
+  display: flex;
+  padding: 20px 20px 0;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.add-proj-input {
+  flex-grow: 1;
+  border: none;
+  background: transparent;
+  color: var(--text-main);
+  outline: none;
+  font-size: 1rem;
+}
+
+.add-proj-input::placeholder {
+  color: var(--text-muted);
+}
+
+.add-proj-btn {
+  background: var(--neon-blue);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  line-height: 30px;
+  text-align: center;
+  cursor: pointer;
+  margin-left: 10px;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+.add-proj-btn:hover {
+  background: #38bdf8; /* Lighter blue */
+}
+
+.delete-proj-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 1;
+  padding: 0;
+  margin-left: 10px;
+  opacity: 0.5;
+  transition: all 0.2s ease;
+  display: none; /* Hide by default */
+}
+
+.project-item.active .delete-proj-btn {
+  display: block; /* Show only on active project */
+}
+
+.delete-proj-btn:hover {
+  opacity: 1;
+  color: var(--neon-red);
+  transform: scale(1.2);
+}
+
+/* Scrollbar styling */
+.project-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.project-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.project-list::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.3);
+  border-radius: 3px;
+}
+
+.project-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.5);
+}

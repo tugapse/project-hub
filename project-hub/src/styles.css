@@ -4,3 +4,35 @@ body {
   margin: 0;
   padding: 0;
 }
+
+/* Drag and drop */
+.gu-mirror {
+  position: fixed !important;
+  margin: 0 !important;
+  z-index: 9999 !important;
+  opacity: 0.8;
+  list-style: none;
+}
+
+.gu-transit {
+  opacity: 0.2;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-main-light);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-main-medium);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bg-main-dark);
+}

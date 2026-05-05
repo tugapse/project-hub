@@ -3,8 +3,7 @@ import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { TASK_COLORS, TASK_ICONS } from "../../entities/icons-colors";
-
-
+import { ChecklistItem, Task } from "../../app/entities/types";
 
 @Component({
   selector: 'task-modal',
@@ -18,12 +17,11 @@ export class TaskModalComponent {
   public readonly TASK_COLORS = TASK_COLORS;
   public readonly TASK_ICONS = TASK_ICONS;
 
-
   @Input() editingTask: Task | null = null;
   @Input() showPopup: boolean = false;
 
-  @Output() onUpdate = new EventEmitter<Task>();
-  @Output() onClose = new EventEmitter<Task>();
+  @Output() update = new EventEmitter<Task>();
+  @Output() close = new EventEmitter<void>();
 
   addChecklistItem(text: string) {
     if (text && this.editingTask) {
@@ -31,14 +29,12 @@ export class TaskModalComponent {
         this.editingTask.checklist = [];
       }
       this.editingTask.checklist.push({ text, completed: false });
-      this.saveTask();
     }
   }
 
   deleteChecklistItem(index: number) {
     if (this.editingTask && this.editingTask.checklist) {
       this.editingTask.checklist.splice(index, 1);
-      this.saveTask();
     }
   }
 
@@ -46,29 +42,23 @@ export class TaskModalComponent {
     if (!task.checklist || task.checklist.length === 0) {
       return { completed: 0, percentage: 0 };
     }
-    const completed = task.checklist.filter(item => item.completed).length;
+    const completed = task.checklist.filter((item: ChecklistItem) => item.completed).length;
     const percentage = (completed / task.checklist.length) * 100;
     return { completed, percentage };
   }
 
-  saveTask() {
-    this.onUpdate.emit(this.editingTask!);
+  saveAndClose() {
+    if (!this.editingTask) return;
+    this.update.emit(this.editingTask);
   }
 
-  cancelEditingTask() {
-    this.onClose.emit();
+  cancel() {
+    this.close.emit();
   }
-
 
   updateTask(key: 'color' | 'icon', value: string) {
     if (!this.editingTask) return;
     if (key === 'color') this.editingTask.color = value;
     if (key === 'icon') this.editingTask.icon = value;
-    this.saveTask(); // Save changes immediately
   }
-
-  closeTaskPopup() {
-    this.onClose.emit();
-  }
-
 }
