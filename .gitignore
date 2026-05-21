@@ -6,3 +6,4 @@ frontend.log
 project-hub/.editorconfig
 project-hub/package-lock.json
 .venv
+.data/*

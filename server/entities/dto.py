@@ -1,8 +1,12 @@
 # --- Data Models ---
 from typing import List, Optional
-
 from pydantic import BaseModel
+from enum import Enum
 
+class ProjectStatus(Enum):
+    NOT_STARTED = "not_started"
+    ACTIVE = "active"
+    ARCHIVED = "archived"
 
 class ChecklistItem(BaseModel):
     text: str
@@ -15,6 +19,7 @@ class Task(BaseModel):
     color: Optional[str] = "#ccc"
     icon: Optional[str] = "📄"
     isEditing: Optional[bool] = False
+    checklistTitle:Optional[str] = "" 
     checklist: Optional[List[ChecklistItem]] = []
     notes: Optional[str] = ""
 
@@ -27,4 +32,4 @@ class Project(BaseModel):
     id: str
     name: str
     columns: List[Column]
-    archived: bool = False
+    status:ProjectStatus = ProjectStatus.ACTIVE

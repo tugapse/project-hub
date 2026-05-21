@@ -21,7 +21,7 @@
       </div>
       <div class="popup-sidebar">
         <div class="checklist-section">
-          <h4><span class="checklist-icon-header"></span> Checklist</h4>
+          <h4><span class="checklist-icon-header"></span> <input [(ngModel)]="editingTask.checklistTitle" class="checklist-title-input"></h4>
           <div class="checklist-progress-bar-container" *ngIf="editingTask.checklist.length">
             <div class="checklist-progress-bar-fill" [style.width.%]="getChecklistProgress(editingTask).percentage">
             </div>

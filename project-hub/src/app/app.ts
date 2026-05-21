@@ -1,13 +1,14 @@
-import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { Component, OnInit, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 import { TaskModalComponent } from "../components/modal/modal";
+import { Column, Project, Task } from '../entities/interfaces';
 import { ApiService } from '../services/api.service';
-import { Project, Column, Task } from './entities/types';
-import { SidebarComponent } from './sidebar/sidebar.component';
 import { MainViewComponent } from './main-view/main-view.component';
+import { SidebarComponent } from './sidebar/sidebar.component';
+import { ProjectStatus } from '../entities/enums';
 
 @Component({
   selector: 'app-root',
@@ -71,7 +72,8 @@ export class AppComponent implements OnInit {
         { id: 'todo', title: 'To Do', tasks: [] },
         { id: 'doing', title: 'Doing', tasks: [] },
         { id: 'done', title: 'Done', tasks: [] }
-      ]
+      ],
+      status: ProjectStatus.ACTIVE
     };
     this.projects.push(newP);
     this.handleProjectSelected(newP);

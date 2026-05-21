@@ -41,7 +41,8 @@ def update_projects(incoming_projects: List[Project]):
     database.save_to_disk(incoming_projects)
     return {"status": "success", "count": len(database.get_projects())}
 
-FRONTEND_BUILD_DIR = Path(__file__).resolve().parent / "frontend"
+FRONTEND_BUILD_DIR = Path(__file__).resolve().parent.parent / "frontend"
+
 if FRONTEND_BUILD_DIR.is_dir():
     app.mount("/", StaticFiles(directory=FRONTEND_BUILD_DIR, html=True), name="static_app")
 

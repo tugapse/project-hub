@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { Project } from '../entities/types';
 import { CommonModule } from '@angular/common';
+import { Project } from '../../entities/interfaces';
 
 @Component({
   selector: 'app-header',

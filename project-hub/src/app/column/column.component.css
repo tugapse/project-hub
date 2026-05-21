@@ -33,13 +33,16 @@
   margin-top: 10px;
   background: transparent !important;
   border: 1px dashed var(--border) !important;
-  font-size: 13px !important;
-  opacity: 0.6;
+  font-size: 16px !important;
+  padding: 8px 4px;
+  margin: 2px;
+  width: 95%;
+  opacity: 0.5;
 }
 
 .add-task-input:focus {
   opacity: 1;
-  border-style: solid !important;
+  border-style: solid var(--border) !important;
 }
 
 .task-list {

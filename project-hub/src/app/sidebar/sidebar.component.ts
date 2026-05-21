@@ -1,7 +1,8 @@
 import { Component, Input, Output, EventEmitter, HostBinding } from '@angular/core';
-import { Project, Column, Task } from '../entities/types';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ProjectStatus } from '../../entities/enums';
+import { Project, Task, Column } from '../../entities/interfaces';
 
 @Component({
   selector: 'app-sidebar',
@@ -22,6 +23,12 @@ export class SidebarComponent {
 
   newProjectName = '';
   editingProject: Project | null = null;
+  _ProjectStatus = ProjectStatus;
+  selectedProjectStatus: ProjectStatus = ProjectStatus.ACTIVE;
+
+  
+
+
 
 
   @HostBinding('class.collapsed')

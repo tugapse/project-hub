@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Project, Column } from '../../app/entities/types';
+import { Project, Column } from '../../entities/interfaces';
 
 @Component({
   selector: 'app-project-list',

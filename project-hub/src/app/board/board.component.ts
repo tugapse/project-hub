@@ -6,8 +6,8 @@ import {
   moveItemInArray,
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
-import { Project, Column, Task } from '../entities/types';
 import { ColumnComponent } from '../column/column.component';
+import { Project, Task, Column } from '../../entities/interfaces';
 
 @Component({
   selector: 'app-board',

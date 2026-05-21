@@ -3,7 +3,7 @@ import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { TASK_COLORS, TASK_ICONS } from "../../entities/icons-colors";
-import { ChecklistItem, Task } from "../../app/entities/types";
+import { Task, ChecklistItem } from "../../entities/interfaces";
 
 @Component({
   selector: 'task-modal',

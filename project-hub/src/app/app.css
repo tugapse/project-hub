@@ -1,25 +1,25 @@
 :host {
-  /* --- RECLAIMED SLATE PALETTE (Dark but visible) --- */
-  --bg-main: #0f172a;        /* Deep Navy base */
-  --bg-sidebar: #1e293b;     /* Lighter Slate sidebar */
-  --bg-column: #334155;      /* Visible Mid-Slate columns */
-  --bg-card: #1e293b;        /* Elevated card color */
+  /* --- RECLAIMED SLATE PALETTE (Inverted for realistic depth) --- */
+  --bg-main: #0f172a;        /* Deepest Navy (The main background canvas) */
+  --bg-sidebar: #0b0f19;     /* Deep slate-black to isolate the sidebar panel */
+  --bg-column: #1e293b;      /* Mid-Slate for the lane containers */
+  --bg-card: #334155;        /* Lightest Slate so cards float naturally on top */
 
   /* --- VIBRANT ACCENTS --- */
   --neon-blue: #38bdf8;      /* Brighter, cleaner Cyan */
   --neon-red: #f43f5e;       /* Modern Rose-Red */
   --neon-yellow: #f2d600;    /* Vibrant Yellow */
   --neon-green: #61bd4f;     /* Clean Green */
-  --accent-glow: rgba(56, 189, 248, 0.3);
+  --accent-glow: rgba(56, 189, 248, 0.15);
 
   /* --- TYPOGRAPHY & UI --- */
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
-  --border: rgba(255, 255, 255, 0.1);
+  --border: rgba(255, 255, 255, 0.05);
   --input-bg: #0f172a;
 
   /* --- DEPTH --- */
-  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 :host-context([data-theme='light']) {
@@ -37,7 +37,6 @@
   --input-bg: #ffffff;
   --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
-
 .app-wrapper {
   display: flex;
   position: relative; /* Add positioning context for absolute children */

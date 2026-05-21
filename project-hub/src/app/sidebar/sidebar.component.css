@@ -208,3 +208,39 @@
 .project-list::-webkit-scrollbar-thumb:hover {
   background: rgba(128, 128, 128, 0.5);
 }
+
+.sidebar-links {
+  display: flex;
+  gap: 8px;
+  font-weight: 500;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding: 8px 0px;
+    font-size: 10px;
+    width: 100%;
+    text-align: left;
+}
+
+.sidebar-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s ease, border-color 0.2s ease;
+  border-bottom: 2px solid transparent;
+  padding-bottom: 2px;
+  cursor: pointer;
+}
+
+.sidebar-link:hover {
+  color: var(--neon-blue);
+}
+
+.sidebar-link.active {
+  color: var(--text-main);
+  border-bottom-color: var(--neon-blue);
+}
+
+/* Optional separator slash styling */
+.sidebar-separator {
+  color: var(--border);
+  user-select: none;
+}

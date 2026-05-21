@@ -1,8 +1,8 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DragDropModule, CdkDropList, CdkDragDrop } from '@angular/cdk/drag-drop';
-import { Column, Task } from '../entities/types';
 import { TaskCardComponent } from '../task-card/task-card.component';
+import { Column, Task } from '../../entities/interfaces';
 
 @Component({
   selector: 'app-column',
@@ -40,6 +40,7 @@ export class ColumnComponent {
         description: '',
         color: '#475569',
         icon: '',
+        checklistTitle: 'Todos :',
         checklist: [],
         notes: '',
       });

@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Project, Task, Column } from '../entities/types';
 import { HeaderComponent } from '../header/header.component';
 import { BoardComponent } from '../board/board.component';
+import { Project, Task, Column } from '../../entities/interfaces';
 
 @Component({
   selector: 'app-main-view',

@@ -6,10 +6,10 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import { Column, Task } from '../entities/types';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
+import { Task, Column } from '../../entities/interfaces';
 
 @Component({
   selector: 'app-task-card',

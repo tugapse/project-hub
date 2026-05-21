@@ -25,9 +25,14 @@ export class ApiService {
       ...project,
       columns: project.columns.map(column => ({
         ...column,
-        tasks: column.tasks.map(task => ({ ...task, checklist: task.checklist || [] }))
+        tasks: column.tasks.map(this.buildTask)
       }))
     }));
+  }
+
+  private buildTask(task:Task){
+    console.log(task);
+    return { ...task, checklistTitle: task.checklistTitle || 'Todo :', checklist: task.checklist || [] }
   }
 
 }
