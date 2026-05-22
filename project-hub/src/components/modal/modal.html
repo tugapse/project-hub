@@ -7,31 +7,30 @@
         <span class="popup-title-icon">{{ editingTask.icon }}</span>
         <input class="task-title-input" [(ngModel)]="editingTask.content">
       </div>
-      <button (click)="closeTaskPopup()" class="close-popup">×</button>
+      <button (click)="cancel()" class="close-popup"></button>
     </div>
     <div class="popup-content-wrapper">
       <div class="popup-body">
-        <h4><span class="notes-icon-header">🗒️</span> Description</h4>
+        <h4><span class="notes-icon-header"></span> Description</h4>
         <textarea [(ngModel)]="editingTask.description" placeholder="Add a description..." class="desc-area"></textarea>
         <div class="notes-section">
-          <h4><span class="notes-icon-header">🗒️</span> Notes</h4>
-          <textarea [(ngModel)]="editingTask.notes" (blur)="saveTask()" placeholder="Add some notes..."
+          <h4><span class="notes-icon-header"></span> Notes</h4>
+          <textarea [(ngModel)]="editingTask.notes" placeholder="Add some notes..."
             class="notes-area"></textarea>
         </div>
       </div>
       <div class="popup-sidebar">
         <div class="checklist-section">
-          <h4><span class="checklist-icon-header">☑️</span> Checklist</h4>
+          <h4><span class="checklist-icon-header"></span> <input [(ngModel)]="editingTask.checklistTitle" class="checklist-title-input"></h4>
           <div class="checklist-progress-bar-container" *ngIf="editingTask.checklist.length">
             <div class="checklist-progress-bar-fill" [style.width.%]="getChecklistProgress(editingTask).percentage">
             </div>
           </div>
           <div class="checklist-items">
             <div *ngFor="let item of editingTask.checklist; let i = index" class="checklist-item">
-              <input type="checkbox" [(ngModel)]="item.completed" (change)="saveTask()">
-              <input type="text" class="checklist-item-text" [(ngModel)]="item.text" (blur)="saveTask()"
-                (keyup.enter)="saveTask()">
-              <button (click)="deleteChecklistItem(i)" class="delete-checklist-item">×</button>
+              <input type="checkbox" [(ngModel)]="item.completed">
+              <input type="text" class="checklist-item-text" [(ngModel)]="item.text">
+              <button (click)="deleteChecklistItem(i)" class="delete-checklist-item"></button>
             </div>
           </div>
           <div class="add-checklist-item">
@@ -51,8 +50,8 @@
           </div>
         </div>
         <div class="popup-footer">
-          <button (click)="cancelEditingTask()" class="btn-cancel">Close</button>
-          <button (click)="closeTaskPopup()" class="btn-save">Save</button>
+          <button (click)="cancel()" class="btn-cancel">Close</button>
+          <button (click)="saveAndClose()" class="btn-save">Save</button>
         </div>
       </div>
     </div>

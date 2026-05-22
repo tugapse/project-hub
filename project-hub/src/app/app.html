@@ -1,104 +1,18 @@
-    <div class="app-wrapper">
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <h2>Projects</h2>
-        </div>
-        <div class="project-list">
-          <div *ngFor="let p of projects"
-               (click)="selectProject(p)"
-               [class.active]="currentProject?.id === p.id"
-               class="project-item">
+<div class="app-wrapper" [class.sidebar-collapsed]="isSidebarCollapsed">
+  <button (click)="toggleSidebar()" class="sidebar-toggle-btn">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+    </svg>
+  </button>
 
-            <input class="proj-edit-input"
-                   *ngIf="editingProjectId === p.id"
-                   [(ngModel)]="p.name"
-                   (blur)="stopEditingProject()"
-                   (keyup.enter)="stopEditingProject()">
+  <app-sidebar [isCollapsed]="isSidebarCollapsed" [projects]="projects" [currentProject]="currentProject"
+    (projectSelected)="handleProjectSelected($event)" (projectAdded)="handleProjectAdded($event)"
+    (projectDeleted)="handleProjectDeleted($event)" (projectUpdated)="handleProjectUpdated()"></app-sidebar>
 
-            <div class="project-item-header" *ngIf="editingProjectId !== p.id">
-              <span class="proj-name" (dblclick)="startEditingProject(p)">
-                {{ p.name }}
-              </span>
-              <button (click)="deleteProject(p, $event)" class="del-proj">×</button>
-            </div>
+  <app-main-view class="main-content" *ngIf="currentProject" [currentProject]="currentProject" [isSyncing]="isSyncing"
+    [isDarkMode]="isDarkMode" (themeToggled)="toggleTheme()" (stateChanged)="save()"
+    (taskOpened)="openTaskPopup($event)" (taskDeleted)="deleteTask($event.column, $event.task)"></app-main-view>
 
-            <div class="progress-bar">
-              <div class="progress-bar-fill progress-todo" [style.width.%]="getProjectProgress(p).todo"></div>
-              <div class="progress-bar-fill progress-doing" [style.width.%]="getProjectProgress(p).doing"></div>
-              <div class="progress-bar-fill progress-done" [style.width.%]="getProjectProgress(p).done"></div>
-            </div>
-
-          </div>
-        </div>
-        <div class="new-project">
-          <input #pInput (keyup.enter)="addProject(pInput.value); pInput.value=''" placeholder="+ New Project">
-        </div>
-      </aside>
-
-      <main class="board-container">
-        <header *ngIf="currentProject">
-          <div class="header-left">
-            <h1>{{ currentProject.name }}</h1>
-            <div class="status-pill" [class.syncing]="isSyncing">
-              <span class="dot"></span>
-              {{ isSyncing ? 'Syncing...' : 'System Synced' }}
-            </div>
-          </div>
-          <div class="header-right">
-            <button (click)="toggleTheme()" class="theme-toggle">
-              {{ isDarkMode ? '☀️ Light' : '🌙 Dark' }}
-            </button>
-            <button (click)="clearBoard()" class="clear-btn">Clear All Tasks</button>
-          </div>
-        </header>
-
-        <div class="board-scroll">
-          <div class="board" cdkDropListGroup *ngIf="currentProject">
-            <div class="column" *ngFor="let column of currentProject.columns">
-              <div class="col-header">
-                <h3>{{ column.title }}</h3>
-                <span class="count">{{ column.tasks.length }}</span>
-              </div>
-
-              <div cdkDropList [cdkDropListData]="column.tasks" (cdkDropListDropped)="drop($event)" class="task-list">
-
-                <div *ngFor="let task of column.tasks" cdkDrag class="task-card" [style.border-left-color]="task.color" (click)="openTaskPopup(task)" [class.task-done]="column.title === 'Done'">
-                  <div class="task-header">
-                    <div class="task-title">
-                      <span class="task-icon">{{ task.icon }}</span>
-                      <span class="task-text">{{ task.content }}</span>
-                    </div>
-                    <button (click)="deleteTask(column, task); $event.stopPropagation()" class="delete-task">×</button>
-                  </div>
-
-                  <div class="task-preview" *ngIf="task.description">
-                    {{ task.description | slice:0:80 }}{{ task.description.length > 80 ? '...' : '' }}
-                  </div>
-
-                  <div class="task-footer" *ngIf="task.checklist && task.checklist.length > 0">
-                    <div class="checklist-progress">
-                      <span class="checklist-icon">☑️</span>
-                      <span>{{ getChecklistProgress(task).completed }}/{{ task.checklist.length }}</span>
-                      <div class="checklist-progress-bar">
-                        <div class="checklist-progress-bar-fill" [style.width.%]="getChecklistProgress(task).percentage"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="add-box">
-                  <input class="add-task-input" #tInput (keyup.enter)="addTask(column, tInput.value); tInput.value=''" placeholder="+ Add Task">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-
-    <task-modal
-      [showPopup]="showPopup"
-      [editingTask]="editingTask"
-      (onClose)="closeTaskPopup()"
-      (onUpdate)="saveTask($event)"
-    ></task-modal>
-    </div>
+  <task-modal [showPopup]="showPopup" [editingTask]="editingTask" (close)="handleModalClosed()"
+    (update)="handleTaskUpdate($event)"></task-modal>
+</div>

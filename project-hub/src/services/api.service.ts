@@ -2,12 +2,22 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs';
+import { Project, Task } from '../entities/interfaces';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-  private readonly API_URL = 'http://localhost:9998/projects';
+  
+  private get API_URL(){
+    const host = window.location.hostname;
+    const port = window.location.port;
+    if(host === 'localhost' && port === '4200'){
+      return 'http://localhost:9998/projects';
+    } 
+
+    return `http://${host}${ port ? '' + port : '' }/projects`;
+  } 
 
   constructor(private http: HttpClient) { }
 
@@ -25,9 +35,14 @@ export class ApiService {
       ...project,
       columns: project.columns.map(column => ({
         ...column,
-        tasks: column.tasks.map(task => ({ ...task, checklist: task.checklist || [] }))
+        tasks: column.tasks.map(this.buildTask)
       }))
     }));
+  }
+
+  private buildTask(task:Task){
+    console.log(task);
+    return { ...task, checklistTitle: task.checklistTitle || 'Todo :', checklist: task.checklist || [] }
   }
 
 }

@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "build-to-server": "ng build --base-href /hub/ && rm -rf  ../server/frontend/* && cp -r dist/project-hub/browser/* ../server/frontend"
+    "build-to-server": "ng build && mkdir -p ../frontend && rm -rf ../frontend/* && cp -r dist/project-hub/browser/* ../frontend/",
+    "build-to-server-x": "ng build --base-href /hub/ && mkdir -p ../frontend && rm -rf ../frontend/* && cp -r dist/project-hub/browser/* ../frontend/"
   },
   "prettier": {
     "printWidth": 100,
@@ -23,11 +24,12 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/cdk": "^21.2.4",
+    "@angular/cdk": "~20.2.0",
     "@angular/common": "^20.2.0",
     "@angular/compiler": "^20.2.0",
     "@angular/core": "^20.2.0",
     "@angular/forms": "^20.2.0",
+    "@angular/material": "~20.2.0",
     "@angular/platform-browser": "^20.2.0",
     "@angular/router": "^20.2.0",
     "rxjs": "~7.8.0",

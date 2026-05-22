@@ -1,0 +1,23 @@
+<div class="task-header">
+  <div class="task-title">
+    <span class="task-icon">{{ task.icon }}</span>
+    <span class="task-text">{{ task.content }}</span>
+  </div>
+  <button (click)="deleteTask($event)" class="delete-task">×</button>
+</div>
+
+<div class="task-preview" *ngIf="task.description">
+  {{ task.description | slice:0:80 }}{{ task.description.length > 80 ? '...' : '' }}
+</div>
+
+@if(task.checklist && task.checklist.length > 0){
+<div class="task-footer">
+  <div class="checklist-progress">
+    <span class="checklist-todo">{{task.checklistTitle}} </span>
+    <span>{{ checklistProgress?.completed }}/{{ checklistProgress?.total }}</span>
+    <div class="progress-bar">
+      <div class="progress-bar-fill" [style.width.%]="checklistProgress?.percentage"></div>
+    </div>
+  </div>
+</div>
+}

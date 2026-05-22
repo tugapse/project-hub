@@ -1,23 +1,25 @@
 :host {
-  /* --- RECLAIMED SLATE PALETTE (Dark but visible) --- */
-  --bg-main: #0f172a;        /* Deep Navy base */
-  --bg-sidebar: #1e293b;     /* Lighter Slate sidebar */
-  --bg-column: #334155;      /* Visible Mid-Slate columns */
-  --bg-card: #1e293b;        /* Elevated card color */
+  /* --- RECLAIMED SLATE PALETTE (Inverted for realistic depth) --- */
+  --bg-main: #0f172a;        /* Deepest Navy (The main background canvas) */
+  --bg-sidebar: #0b0f19;     /* Deep slate-black to isolate the sidebar panel */
+  --bg-column: #1e293b;      /* Mid-Slate for the lane containers */
+  --bg-card: #334155;        /* Lightest Slate so cards float naturally on top */
 
   /* --- VIBRANT ACCENTS --- */
   --neon-blue: #38bdf8;      /* Brighter, cleaner Cyan */
   --neon-red: #f43f5e;       /* Modern Rose-Red */
-  --accent-glow: rgba(56, 189, 248, 0.3);
+  --neon-yellow: #f2d600;    /* Vibrant Yellow */
+  --neon-green: #61bd4f;     /* Clean Green */
+  --accent-glow: rgba(56, 189, 248, 0.15);
 
   /* --- TYPOGRAPHY & UI --- */
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
-  --border: rgba(255, 255, 255, 0.1);
+  --border: rgba(255, 255, 255, 0.05);
   --input-bg: #0f172a;
 
   /* --- DEPTH --- */
-  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 :host-context([data-theme='light']) {
@@ -27,326 +29,25 @@
   --bg-card: #ffffff;
   --neon-blue: #0ea5e9;
   --neon-red: #e11d48;
+  --neon-yellow: #e5c300;   /* Saturated Yellow for light theme */
+  --neon-green: #55a345;    /* Saturated Green for light theme */
   --text-main: #0f172a;
   --text-muted: #64748b;
   --border: rgba(0, 0, 0, 0.05);
   --input-bg: #ffffff;
   --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
-
 .app-wrapper {
   display: flex;
+  position: relative; /* Add positioning context for absolute children */
+  width: 100%;
+  background-color: var(--bg-main);
   height: 100vh;
   background: var(--bg-main);
   color: var(--text-main);
   font-family: 'Inter', sans-serif;
   overflow: hidden;
   transition: background 0.3s;
-}
-
-/* Sidebar */
-.sidebar {
-  width: 280px;
-  background: var(--bg-sidebar);
-  padding: 30px 20px;
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-}
-
-.sidebar h2 {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--text-muted);
-  margin-bottom: 25px;
-}
-
-.project-item {
-  display: block;
-  padding: 12px 16px;
-  margin-bottom: 8px;
-  border-radius: 8px;
-  cursor: pointer;
-  background: rgba(128, 128, 128, 0.05);
-  border: 1px solid transparent;
-  transition: all 0.2s ease;
-}
-
-.project-item.active {
-  border-color: var(--neon-blue);
-  background: rgba(56, 189, 248, 0.1);
-  color: var(--neon-blue);
-  box-shadow: 0 0 15px var(--accent-glow);
-}
-
-.project-item-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.progress-bar {
-  display: flex;
-  height: 4px;
-  background: rgba(128, 128, 128, 0.1);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-top: 8px;
-}
-
-.progress-bar-fill {
-  height: 100%;
-  transition: width 0.3s;
-}
-
-.progress-todo { background: var(--neon-red); }
-.progress-doing { background: var(--neon-blue); }
-.progress-done { background: #61bd4f; }
-
-.proj-edit-input {
-  background: transparent !important;
-  border: none !important;
-  color: var(--neon-blue) !important;
-  font-weight: bold;
-  padding: 0 !important;
-  width: 80%;
-  outline: none;
-}
-
-.new-project {
-  margin-top: auto;
-  padding-top: 20px;
-}
-
-.new-project input {
-  background: rgba(128, 128, 128, 0.1) !important;
-  border: 1px solid var(--border) !important;
-  font-size: 13px !important;
-}
-
-/* Board Container */
-.board-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
-}
-
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 40px;
-  background: var(--bg-sidebar);
-  border-bottom: 1px solid var(--border);
-}
-
-.header-left h1 {
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-.status-pill {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 6px 12px;
-  border-radius: 20px;
-  background: rgba(128, 128, 128, 0.08);
-  color: var(--text-muted);
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  background: var(--neon-blue);
-  border-radius: 50%;
-  box-shadow: 0 0 12px var(--neon-blue), 0 0 20px var(--neon-blue);
-}
-
-.board-scroll {
-  flex: 1;
-  padding: 30px 40px;
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-
-.board {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
-  height: 100%;
-}
-
-.column {
-  background: var(--bg-column);
-  border-radius: 12px;
-  width: 320px;
-  min-width: 320px;
-  padding: 16px;
-  border: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  max-height: 100%;
-}
-
-.col-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.col-header h3 {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--text-muted);
-  margin: 0;
-}
-
-/* Task Cards */
-.task-card {
-  background: var(--bg-card);
-  padding: 16px;
-  border-radius: 10px;
-  margin-bottom: 12px;
-  border-left: 4px solid var(--text-muted);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-  box-shadow: var(--card-shadow);
-  border: 1px solid var(--border);
-}
-
-.task-card:hover {
-  transform: translateY(-3px) scale(1.02);
-  border-left-color: var(--neon-blue);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-}
-
-.task-done {
-  border-left-color: #61bd4f;
-  opacity: 0.7;
-}
-
-.task-done .task-text { text-decoration: line-through; }
-
-.task-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.task-title {
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 1;
-    flex: 1;
-  }
-
-  .task-title .checklist-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: -1px;
-    line-height: 1;
-  }
-
-.delete-task {
-  color: var(--text-muted);
-  border: none;
-  background: none;
-  cursor: pointer;
-  font-size: 18px;
-  padding: 0;
-  line-height: 1;
-  opacity: 0.5;
-  transition: 0.2s;
-}
-
-.delete-task:hover {
-  opacity: 1;
-  color: var(--neon-red);
-}
-
-.task-preview {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 10px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
-  opacity: 0.7;
-  line-height: 1.4;
-}
-
-.task-body {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
-  width: 100%;
-}
-
-.desc-area {
-  width: 100%;
-  min-height: 80px;
-  font-size: 13px;
-  padding: 10px !important;
-  box-sizing: border-box;
-  margin-bottom: 12px;
-  display: block;
-  line-height: 1.5;
-}
-
-.add-task-input {
-  margin-top: 10px;
-  background: transparent !important;
-  border: 1px dashed var(--border) !important;
-  font-size: 13px !important;
-  opacity: 0.6;
-}
-
-.add-task-input:focus {
-  opacity: 1;
-  border-style: solid !important;
-}
-
-.clear-btn {
-  background: transparent;
-  border: 1px solid var(--neon-red);
-  color: var(--neon-red);
-  border-radius: 6px;
-  padding: 8px 16px;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.clear-btn:hover {
-  background: var(--neon-red);
-  color: white;
-}
-
-.theme-toggle {
-  background: var(--bg-column);
-  border: 1px solid var(--border);
-  color: var(--text-main);
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 600;
-  margin-right: 10px;
 }
 
 .del-proj {
@@ -367,14 +68,47 @@ input {
   outline: none;
 }
 
-/* Drag & Drop */
-.cdk-drag-preview {
-  box-sizing: border-box;
-  border-radius: 10px;
-  box-shadow: 0 12px 24px rgba(0,0,0,0.5);
+
+
+.main-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  transition: margin-left 0.3s ease-in-out;
+  margin-left: 280px; /* Default margin to match sidebar width */
+  position: relative;
 }
 
-.cdk-drag-placeholder { opacity: 0; }
-.cdk-drop-list-dragging .task-card:not(.cdk-drag-placeholder) {
-  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+.app-wrapper.sidebar-collapsed .main-content {
+  margin-left: 0;
+}
+
+.sidebar-toggle-btn {
+  position: absolute; /* Use absolute to position relative to .app-wrapper */
+  top: 15px;
+  left: 260px; /* Adjust to be just inside the sidebar */
+  z-index: 1001; /* Ensure it's above the sidebar */
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.sidebar-toggle-btn:hover {
+  background: var(--bg-main);
+  color: var(--neon-blue);
+}
+
+/* Correctly target the button when the wrapper has the collapsed class */
+.app-wrapper.sidebar-collapsed .sidebar-toggle-btn {
+  left: 3px; /* Position when sidebar is collapsed */
+  transform: rotate(180deg);
 }

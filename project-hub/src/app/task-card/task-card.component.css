@@ -1,0 +1,111 @@
+:host {
+  background: var(--bg-card);
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  border-left: 4px solid var(--text-muted);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  box-shadow: var(--card-shadow);
+  border: 2px solid var(--border);
+  display: block;
+  margin: 8px;
+  max-height: 150px;
+}
+
+:host(:hover) {
+  transform: translateY(-3px) scale(1.02);
+  border-left-color: var(--neon-blue);
+}
+
+:host(.task-done) {
+  border-left-color: #61bd4f;
+  opacity: 0.7;
+}
+
+:host(.task-done) .task-title {
+  text-decoration: line-through;
+}
+
+.task-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.task-title {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  flex: 1;
+}
+
+.delete-task {
+  color: var(--text-muted);
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.5;
+  transition: 0.2s;
+}
+
+.delete-task:hover {
+  opacity: 1;
+  color: var(--neon-red);
+}
+
+.task-preview {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  opacity: 0.7;
+  line-height: 1.4;
+}
+
+/* Drag & Drop */
+:host.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 10px;
+  /* box-shadow: 0 12px 24px rgba(0,0,0,0.5); */
+  background-color: whitesmoke;
+
+}
+
+.cdk-drag-placeholder { opacity: 0; }
+.cdk-drop-list-dragging .task-card:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.task-footer{
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+.progress-bar {
+  display: flex;
+  height: 4px;
+  background: rgba(128, 128, 128, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  transition: width 0.3s;
+  background: var(--neon-blue);
+
+}

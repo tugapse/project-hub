@@ -1,0 +1,12 @@
+.board-scroll {
+  flex: 1;
+  padding: 30px 40px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.board {
+  display: flex;
+  gap: 20px;
+  height: 100%;
+}

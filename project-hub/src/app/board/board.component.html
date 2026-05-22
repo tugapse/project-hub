@@ -1,0 +1,12 @@
+<div class="board-scroll" *ngIf="currentProject">
+  <div class="board" cdkDropListGroup>
+    <app-column
+      *ngFor="let column of currentProject.columns"
+      [column]="column"
+      (cdkDropListDropped)="drop($event)"
+      (taskOpened)="openTaskPopup($event)"
+      (taskDeleted)="deleteTask($event)"
+      (stateChanged)="stateChanged.emit()">
+    </app-column>
+  </div>
+</div>

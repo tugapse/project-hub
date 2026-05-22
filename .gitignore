@@ -1,7 +1,9 @@
 projects.json
+projects_archived.json
 .vscode
 backend.log
 frontend.log
 project-hub/.editorconfig
 project-hub/package-lock.json
 .venv
+.data/*
