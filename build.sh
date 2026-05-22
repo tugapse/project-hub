@@ -58,5 +58,5 @@ echo ""
 echo "======================================================"
 echo "Build completed successfully!"
 echo "To start the application, run:"
-echo "  ./run.sh from project folder!
+echo "  ./run.sh from project folder!"
 echo "======================================================"
