@@ -53,10 +53,17 @@ echo "Navigating to ./project-hub in a subshell..."
   echo "Building Angular project for the server..."
   npm run build-to-server
 )
+# get current scriot location
+SCRIPT_DIR=$(dirname -- $(realpath -- "$0"))
+
 
 echo ""
 echo "======================================================"
 echo "Build completed successfully!"
+echo "You can set the following environment variables to chage the location of the server:"
+echo " * PROJECT_HUB_HOST defaults to 0.0.0.0"
+echo " * PROJECT_HUB_PORT defaults to 9998"
+echo " * PROJECT_HUB_JSON_FILE defaults to $SCRIPT_DIR/data/projects.json"
 echo "To start the application, run:"
-echo "  ./run.sh from project folder!
+echo "  ./run.sh from project folder!"
 echo "======================================================"
