@@ -3,8 +3,5 @@
         "projects-database-filename":"$HOME/.config/hub/projects.json",
         "port":8001,
         "host":"0.0.0.0"
-    },
-    "client":{
-
     }
 }

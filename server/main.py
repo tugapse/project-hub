@@ -48,4 +48,6 @@ if FRONTEND_BUILD_DIR.is_dir():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=9998)
+    host: str = os.getenv("PROJECT_HUB_HOST", "0.0.0.0")
+    port = int(os.getenv("PROJECT_HUB_PORT", 9998))
+    uvicorn.run(app, host=host, port=port)

@@ -3,7 +3,7 @@
 # --- CONFIGURATION ---
 ACTIVATE_PYTHON="source .venv/bin/activate" 
 DB_FILE="projects.json"
-BACKEND_PORT=8000
+BACKEND_PORT=9998
 FRONTEND_PORT=4200
 
 # --- CLEANUP FUNCTION ---
