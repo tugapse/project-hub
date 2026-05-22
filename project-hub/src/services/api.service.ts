@@ -16,7 +16,7 @@ export class ApiService {
       return 'http://localhost:9998/projects';
     } 
 
-    return `http://${host}${ port ? '' + port : '' }/projects`;
+    return `http://${host}${ port ? ':' + port : '' }/projects`;
   } 
 
   constructor(private http: HttpClient) { }
