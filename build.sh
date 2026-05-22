@@ -58,5 +58,5 @@ echo ""
 echo "======================================================"
 echo "Build completed successfully!"
 echo "To start the application, run:"
-echo "  source .venv/bin/activate && python server/main.py"
+echo "  ./run.sh from project folder!
 echo "======================================================"
