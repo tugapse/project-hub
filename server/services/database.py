@@ -3,7 +3,7 @@ import json
 import os
 from pathlib import Path
 from typing import List
-from entities.dto import Project
+from entities.dto import Project, ProjectStatus
 
 PROJECTS_JSON_FILE = os.getenv("PROJECT_HUB_JSON_FILE", "./data/projects.json")
 ARCHIVED_PROJECTS_JSON_FILE = f"{PROJECTS_JSON_FILE.rsplit('.', 1)[0]}_archived.json"
@@ -43,10 +43,10 @@ class ProjectsDatabase:
             self._archived_projects_storage = sanitized_projects["archived"]
 
             with open(DB_FILE, "w", encoding="utf-8") as f:
-                data = [p.model_dump() for p in self._projects_storage]
+                data = [p.model_dump(mode="json") for p in self._projects_storage]
                 json.dump(data, f, indent=4)
             with open(ARCHIVED_DB_FILE, "w", encoding="utf-8") as f:
-                data = [p.model_dump() for p in self._archived_projects_storage]
+                data = [p.model_dump(mode="json") for p in self._archived_projects_storage]
                 json.dump(data, f, indent=4)
       
         except Exception as e:
@@ -54,8 +54,8 @@ class ProjectsDatabase:
     
     def sanitize_projects(self, projects: List[Project]) -> dict[str, List[Project]]:
         """Removes any projects that are archived."""
-        active_projects = [p for p in projects if not p.archived]
-        archived_projects = [p for p in projects if p.archived]    
+        active_projects = [p for p in projects if  p.status == ProjectStatus.ACTIVE]
+        archived_projects = [p for p in projects if p.status == ProjectStatus.ARCHIVED]    
         return { "active": active_projects, "archived": archived_projects } 
     
     def load_json_file(self, file_path: Path) -> List[Project]:
