@@ -6,7 +6,7 @@ set -e
 echo "Checking system dependencies..."
 MISSING_DEPS=0
 
-for cmd in python3 pip node; do
+for cmd in python3 pip node npm; do
   if ! command -v "$cmd" &> /dev/null; then
     # Fallback to check for pip3 if pip is missing
     if [ "$cmd" = "pip" ] && command -v pip3 &> /dev/null; then

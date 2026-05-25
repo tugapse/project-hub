@@ -33,3 +33,15 @@ class Project(BaseModel):
     name: str
     columns: List[Column]
     status:ProjectStatus = ProjectStatus.ACTIVE
+
+
+# --- User Models ---
+
+class User(BaseModel):
+    username: str
+    email: Optional[str] = None
+    full_name: Optional[str] = None
+    disabled: Optional[bool] = False
+
+class UserInDB(User):
+    hashed_password: str

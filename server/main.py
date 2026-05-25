@@ -10,14 +10,16 @@ from fastapi.staticfiles import StaticFiles
 from entities.dto import Project
 from middleware import MIMETypeFixerMiddleware
 from services.database import ProjectsDatabase
+from routers import auth as auth_router
 
-from services.database import ProjectsDatabase
 
 # --- Configuration ---
 # Use environment variable or default to a local path
 
 
 app = FastAPI()
+
+app.include_router(auth_router.router)
 
 app.add_middleware(MIMETypeFixerMiddleware)
 # Enable CORS for Angular
