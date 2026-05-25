@@ -1,6 +1,6 @@
 {
   "name": "project-hub",
-  "version": "0.2.0",
+  "version": "0.1.1",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -8,7 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "build-to-server": "ng build && mkdir -p ../frontend && rm -rf ../frontend/* && cp -r dist/project-hub/browser/* ../frontend/",
-    "build-to-server-x": "ng build --base-href /hub/ && mkdir -p ../frontend && rm -rf ../frontend/* && cp -r dist/project-hub/browser/* ../frontend/"
+    "build-to-server-hub": "ng build --base-href /hub/ && mkdir -p ../frontend && rm -rf ../frontend/* && cp -r dist/project-hub/browser/* ../frontend/"
   },
   "prettier": {
     "printWidth": 100,
