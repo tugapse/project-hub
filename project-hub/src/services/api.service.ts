@@ -12,15 +12,17 @@ export class ApiService {
   private get API_URL(){
     const host = window.location.hostname;
     const port = window.location.port;
+    const pathname = window.location.pathname;
+
+
     if(host === 'localhost' && port === '4200'){
       return 'http://localhost:9998/projects';
     } 
 
-    return `http://${host}${ port ? ':' + port : '' }/projects`;
+    return `http://${host}${ port ? ':' + port : '' }${pathname}projects`;
   } 
 
   constructor(private http: HttpClient) { }
-
 
   public fetchData() {
     return this.http.get<Project[]>(this.API_URL).pipe(map(this.mapProjects.bind(this)));
