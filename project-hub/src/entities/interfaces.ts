@@ -16,5 +16,5 @@ export interface Task {
   checklist: ChecklistItem[];
 }
 export interface Column { id: string; title: string; tasks: Task[]; }
-export interface Project { id: string; name: string; columns: Column[]; status:ProjectStatus }
+export interface Project { id: string; name: string; columns: Column[]; status:ProjectStatus; archived: boolean; }
 

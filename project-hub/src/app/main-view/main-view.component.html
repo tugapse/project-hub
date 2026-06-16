@@ -4,7 +4,9 @@
     [currentProject]="currentProject"
     [isSyncing]="isSyncing"
     [isDarkMode]="isDarkMode"
+    [isProjectArchived]="isProjectArchived"
     (themeToggled)="onToggleTheme()"
+    (projectStateToggled)="onToggleProjectState()"
   ></app-header>
 
   <app-board

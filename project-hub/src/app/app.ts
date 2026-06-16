@@ -73,7 +73,8 @@ export class AppComponent implements OnInit {
         { id: 'doing', title: 'Doing', tasks: [] },
         { id: 'done', title: 'Done', tasks: [] }
       ],
-      status: ProjectStatus.ACTIVE
+      status: ProjectStatus.ACTIVE,
+      archived: false
     };
     this.projects.push(newP);
     this.handleProjectSelected(newP);
@@ -94,6 +95,13 @@ export class AppComponent implements OnInit {
 
   handleProjectUpdated() {
     this.save();
+  }
+
+  handleProjectStateToggle() {
+    if (this.currentProject) {
+      this.currentProject.archived = !this.currentProject.archived;
+      this.save();
+    }
   }
 
   // --- Task & Modal Event Handlers ---
