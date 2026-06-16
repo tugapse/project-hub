@@ -11,6 +11,7 @@
 
   <app-main-view class="main-content" *ngIf="currentProject" [currentProject]="currentProject" [isSyncing]="isSyncing"
     [isDarkMode]="isDarkMode" (themeToggled)="toggleTheme()" (stateChanged)="save()"
+    (projectStateToggled)="handleProjectStateToggle()"
     (taskOpened)="openTaskPopup($event)" (taskDeleted)="deleteTask($event.column, $event.task)"></app-main-view>
 
   <task-modal [showPopup]="showPopup" [editingTask]="editingTask" (close)="handleModalClosed()"

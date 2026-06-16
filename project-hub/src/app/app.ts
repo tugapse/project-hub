@@ -42,9 +42,9 @@ export class AppComponent implements OnInit {
       this.projects = projects;
       const lastProjectId = localStorage.getItem('last-project-id');
       if (lastProjectId) {
-        this.currentProject = this.projects.find(p => p.id === lastProjectId) || this.projects[0] || null;
-      } else {
-        this.currentProject = this.projects[0] || null;
+        const project = this.projects.find(p => p.id === lastProjectId) || this.projects[0] || null;
+        if(project && project.status !== ProjectStatus.ARCHIVED)
+          this.handleProjectSelected(project)
       }
     });
   }
@@ -54,7 +54,7 @@ export class AppComponent implements OnInit {
     this.apiService.save(this.projects).subscribe({
       next: () => {
         this.isSyncing = false;
-        if (this.currentProject) {
+        if (this.currentProject && this.currentProject.status !== ProjectStatus.ARCHIVED) {
           localStorage.setItem('last-project-id', this.currentProject.id);
         }
       },
@@ -73,7 +73,8 @@ export class AppComponent implements OnInit {
         { id: 'doing', title: 'Doing', tasks: [] },
         { id: 'done', title: 'Done', tasks: [] }
       ],
-      status: ProjectStatus.ACTIVE
+      status: ProjectStatus.ACTIVE,
+      archived: false
     };
     this.projects.push(newP);
     this.handleProjectSelected(newP);
@@ -94,6 +95,13 @@ export class AppComponent implements OnInit {
 
   handleProjectUpdated() {
     this.save();
+  }
+
+  handleProjectStateToggle() {
+    if (this.currentProject) {
+      this.currentProject.archived = !this.currentProject.archived;
+      this.save();
+    }
   }
 
   // --- Task & Modal Event Handlers ---

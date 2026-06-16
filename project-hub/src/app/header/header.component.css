@@ -5,10 +5,24 @@
 header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   padding: 20px 40px;
   background: var(--bg-sidebar);
   border-bottom: 1px solid var(--border);
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  flex: 1;
+}
+
+.header-top-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .header-left h1 {
@@ -23,7 +37,7 @@ header {
   gap: 8px;
   font-size: 11px;
   font-weight: 600;
-  padding: 6px 12px;
+  padding: 4px 10px;
   border-radius: 20px;
   background: rgba(128, 128, 128, 0.08);
   color: var(--text-muted);
@@ -37,6 +51,10 @@ header {
   box-shadow: 0 0 12px var(--neon-blue), 0 0 20px var(--neon-blue);
 }
 
+.header-right {
+  padding-top: 4px;
+}
+
 .theme-toggle {
   background: var(--bg-column);
   border: 1px solid var(--border);
@@ -46,5 +64,71 @@ header {
   cursor: pointer;
   font-size: 11px;
   font-weight: 600;
-  margin-right: 10px;
+}
+
+/* --- ARCHIVE TOGGLE STYLES --- */
+
+.archive-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.archive-toggle-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  user-select: none;
+}
+
+.archive-toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+.archive-toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.archive-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-column);
+  border: 1px solid var(--border);
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 20px;
+}
+
+.archive-toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 12px;
+  width: 12px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--text-muted);
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .archive-toggle-slider {
+  background-color: var(--neon-blue);
+  border-color: var(--neon-blue);
+}
+
+input:checked + .archive-toggle-slider:before {
+  -webkit-transform: translateX(20px);
+  -ms-transform: translateX(20px);
+  transform: translateX(20px);
+  background-color: white;
 }
