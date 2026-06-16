@@ -1,6 +1,5 @@
 <main class="board-container">
   <app-header
-    *ngIf="currentProject"
     [currentProject]="currentProject"
     [isSyncing]="isSyncing"
     [isDarkMode]="isDarkMode"
@@ -10,7 +9,6 @@
   ></app-header>
 
   <app-board
-    *ngIf="currentProject"
     [currentProject]="currentProject"
     (stateChanged)="onStateChanged()"
     (taskOpened)="onTaskOpened($event)"
