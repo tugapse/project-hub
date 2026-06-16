@@ -1,9 +1,17 @@
 <header>
   <div class="header-left">
-    <!-- The h1 is now inside an ng-container to safely handle the nullable currentProject -->
-    <ng-container *ngIf="currentProject">
-      <h1>{{ currentProject.name }}</h1>
-    </ng-container>
+    <div class="header-top-row">
+      <ng-container *ngIf="currentProject">
+        <h1>{{ currentProject.name }}</h1>
+      </ng-container>
+      <div class="archive-toggle">
+        <span class="archive-toggle-label">{{ isProjectArchived ? 'Set to Active' : 'Archive Project' }}</span>
+        <label class="archive-toggle-switch">
+          <input type="checkbox" [checked]="isProjectArchived" (change)="onToggleProjectState()">
+          <span class="archive-toggle-slider"></span>
+        </label>
+      </div>
+    </div>
     <div class="status-pill" [class.syncing]="isSyncing">
       <span class="dot"></span>
       {{ isSyncing ? 'Syncing...' : 'System Synced' }}
@@ -11,7 +19,7 @@
   </div>
   <div class="header-right">
     <button (click)="onToggleTheme()" class="theme-toggle">
-      {{ isDarkMode ? ' Light' : ' Dark' }}
+      {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}
     </button>
   </div>
 </header>

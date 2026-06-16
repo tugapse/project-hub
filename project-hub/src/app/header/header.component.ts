@@ -13,9 +13,15 @@ export class HeaderComponent {
   @Input() currentProject: Project | null = null;
   @Input() isSyncing = false;
   @Input() isDarkMode = false;
+  @Input() isProjectArchived = false;
   @Output() themeToggled = new EventEmitter<void>();
+  @Output() projectStateToggled = new EventEmitter<void>();
 
   onToggleTheme() {
     this.themeToggled.emit();
+  }
+
+  onToggleProjectState() {
+    this.projectStateToggled.emit();
   }
 }

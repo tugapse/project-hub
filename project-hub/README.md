@@ -13,8 +13,7 @@ This is the frontend for the Project-Hub task board. It’s a basic Angular app 
 2. Run `npm install`.
 3. Run `ng serve` to see it at http://localhost:4200.
 
-## Logic
-All the main logic is in `app.component.ts`. It handles the task models, the progress bar calculations, and the communication with the Python server.
+
 
 ---
 *By tugapse*
