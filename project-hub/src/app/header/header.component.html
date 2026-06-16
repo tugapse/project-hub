@@ -12,9 +12,14 @@
         </label>
       </div>
     </div>
-    <div class="status-pill" [class.syncing]="isSyncing">
+    <div class="status-pill" *ngIf="syncState" [ngClass]="syncState" [title]="syncState === 'error' ? 'An error occurred during sync' : null">
       <span class="dot"></span>
-      {{ isSyncing ? 'Syncing...' : 'System Synced' }}
+      <ng-container [ngSwitch]="syncState">
+        <span *ngSwitchCase="'syncing'">Syncing...</span>
+        <span *ngSwitchCase="'synced'">System Synced</span>
+        <span *ngSwitchCase="'error'">Sync Error</span>
+        <span *ngSwitchDefault>System Synced</span>
+      </ng-container>
     </div>
   </div>
   <div class="header-right">

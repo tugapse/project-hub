@@ -3,7 +3,8 @@
     <h2>Projects</h2>
   </div>
   <div class="project-list">
-    <div *ngFor="let p of projects"
+    <!-- Started Projects -->
+    <div *ngFor="let p of startedProjects"
          (click)="selectProject(p)"
          [class.active]="currentProject?.id === p.id"
          class="project-item">
@@ -26,7 +27,29 @@
         <div class="progress-bar-fill progress-doing" [style.width.%]="getProjectProgress(p).doing"></div>
         <div class="progress-bar-fill progress-done" [style.width.%]="getProjectProgress(p).done"></div>
       </div>
+    </div>
 
+    <!-- Not Started Projects -->
+    <div class="not-started-header" *ngIf="notStartedProjects.length > 0">
+      Not Started
+    </div>
+    <div *ngFor="let p of notStartedProjects"
+         (click)="selectProject(p)"
+         [class.active]="currentProject?.id === p.id"
+         class="project-item not-started">
+
+      <input class="proj-edit-input"
+             *ngIf="editingProjectId === p.id"
+             [(ngModel)]="p.name"
+             (blur)="stopEditingProject()"
+             (keyup.enter)="stopEditingProject()">
+
+      <div class="project-item-header" *ngIf="editingProjectId !== p.id">
+        <span class="proj-name" (dblclick)="startEditingProject(p)">
+          {{ p.name }}
+        </span>
+        <button (click)="deleteProject(p, $event)" class="del-proj"></button>
+      </div>
     </div>
   </div>
   <div class="new-project">

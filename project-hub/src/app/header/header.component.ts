@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Project } from '../../entities/interfaces';
+import { SyncState } from '../entities/types';
 
 @Component({
   selector: 'app-header',
@@ -11,7 +12,7 @@ import { Project } from '../../entities/interfaces';
 })
 export class HeaderComponent {
   @Input() currentProject: Project | null = null;
-  @Input() isSyncing = false;
+  @Input() syncState: SyncState | null = null;
   @Input() isDarkMode = false;
   @Input() isProjectArchived = false;
   @Output() themeToggled = new EventEmitter<void>();

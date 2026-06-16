@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Project, Column } from '../../entities/interfaces';
@@ -9,7 +9,7 @@ import { Project, Column } from '../../entities/interfaces';
   imports: [CommonModule, FormsModule],
   templateUrl: './project-list.component.html'
 })
-export class ProjectListComponent {
+export class ProjectListComponent implements OnChanges {
   @Input() projects: Project[] = [];
   @Input() currentProject: Project | null = null;
   @Output() onProjectSelected = new EventEmitter<Project>();
@@ -17,7 +17,28 @@ export class ProjectListComponent {
   @Output() onProjectDeleted = new EventEmitter<Project>();
   @Output() onProjectUpdated = new EventEmitter<void>();
 
+  startedProjects: Project[] = [];
+  notStartedProjects: Project[] = [];
   editingProjectId: string | null = null;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['projects']) {
+      this.classifyProjects();
+    }
+  }
+
+  private classifyProjects() {
+    this.startedProjects = this.projects.filter(p => !this.isNotStarted(p));
+    this.notStartedProjects = this.projects.filter(p => this.isNotStarted(p));
+  }
+
+  private isNotStarted(project: Project): boolean {
+    console.log('Classifying project:', project.name, 'Columns:', JSON.stringify(project.columns.map(c => ({id: c.id, title: c.title, task_count: c.tasks.length}))));
+    const todo = project.columns.find((c: Column) => c.id === 'todo')?.tasks.length || 0;
+    const doing = project.columns.find((c: Column) => c.id === 'doing')?.tasks.length || 0;
+    const done = project.columns.find((c: Column) => c.id === 'done')?.tasks.length || 0;
+    return todo > 0 && doing === 0 && done === 0;
+  }
 
   selectProject(project: Project) {
     this.onProjectSelected.emit(project);
