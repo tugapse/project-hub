@@ -9,6 +9,7 @@ import { ApiService } from '../services/api.service';
 import { MainViewComponent } from './main-view/main-view.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { ProjectStatus } from '../entities/enums';
+import { SyncState } from './entities/types';
 
 @Component({
   selector: 'app-root',
@@ -22,7 +23,7 @@ export class AppComponent implements OnInit {
 
   projects: Project[] = [];
   currentProject: Project | null = null;
-  isSyncing = false;
+  syncState: SyncState = 'synced';
   isDarkMode = true;
   isSidebarCollapsed = false;
 
@@ -50,15 +51,15 @@ export class AppComponent implements OnInit {
   }
 
   save() {
-    this.isSyncing = true;
+    this.syncState = 'syncing';
     this.apiService.save(this.projects).subscribe({
       next: () => {
-        this.isSyncing = false;
+        this.syncState = 'synced';
         if (this.currentProject && this.currentProject.status !== ProjectStatus.ARCHIVED) {
           localStorage.setItem('last-project-id', this.currentProject.id);
         }
       },
-      error: () => this.isSyncing = false
+      error: () => this.syncState = 'error'
     });
   }
 

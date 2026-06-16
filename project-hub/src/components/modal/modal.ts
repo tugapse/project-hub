@@ -1,4 +1,4 @@
-import { DragDropModule } from "@angular/cdk/drag-drop";
+import { CdkDragDrop, moveItemInArray, DragDropModule } from "@angular/cdk/drag-drop";
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormsModule } from "@angular/forms";
@@ -13,6 +13,12 @@ import { Task, ChecklistItem } from "../../entities/interfaces";
   styleUrls: ['./modal.css'],
 })
 export class TaskModalComponent {
+
+  drop(event: CdkDragDrop<ChecklistItem[]>) {
+    if (this.editingTask && this.editingTask.checklist) {
+      moveItemInArray(this.editingTask.checklist, event.previousIndex, event.currentIndex);
+    }
+  }
 
   public readonly TASK_COLORS = TASK_COLORS;
   public readonly TASK_ICONS = TASK_ICONS;

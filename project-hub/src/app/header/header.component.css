@@ -51,6 +51,39 @@ header {
   box-shadow: 0 0 12px var(--neon-blue), 0 0 20px var(--neon-blue);
 }
 
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 12px var(--neon-blue), 0 0 20px var(--neon-blue);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 18px var(--neon-blue), 0 0 28px var(--neon-blue);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 12px var(--neon-blue), 0 0 20px var(--neon-blue);
+  }
+}
+
+.status-pill.syncing .dot {
+  animation: pulse 1.5s infinite;
+}
+
+.status-pill.synced .dot {
+  background: var(--neon-green);
+  box-shadow: 0 0 12px var(--neon-green), 0 0 20px var(--neon-green);
+}
+
+.status-pill.error {
+  color: var(--neon-red);
+}
+
+.status-pill.error .dot {
+  background: var(--neon-red);
+  box-shadow: 0 0 12px var(--neon-red), 0 0 20px var(--neon-red);
+}
+
 .header-right {
   padding-top: 4px;
 }

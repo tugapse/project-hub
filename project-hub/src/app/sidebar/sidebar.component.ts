@@ -3,11 +3,16 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProjectStatus } from '../../entities/enums';
 import { Project, Task, Column } from '../../entities/interfaces';
+import {
+  CdkDragDrop,
+  DragDropModule,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [ CommonModule, FormsModule ],
+  imports: [ CommonModule, FormsModule, DragDropModule ],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })
@@ -93,5 +98,29 @@ export class SidebarComponent {
 
   cancelEditing() {
     this.editingProject = null;
+  }
+
+  get displayedProjects(): Project[] {
+    return this.projects.filter(p => p.status === this.selectedProjectStatus);
+  }
+
+  drop(event: CdkDragDrop<Project[]>) {
+    // Create a mutable copy of the displayed projects array
+    const reorderedDisplayedList = [...this.displayedProjects];
+    
+    // Apply the move to the copy
+    moveItemInArray(reorderedDisplayedList, event.previousIndex, event.currentIndex);
+
+    // Get all projects that are not in the current filtered view
+    const otherProjects = this.projects.filter(p => p.status !== this.selectedProjectStatus);
+    
+    // Reconstruct the full list: the reordered part first, then the rest
+    const newList = [...reorderedDisplayedList, ...otherProjects];
+
+    // Update the original projects array in-place to maintain the object reference
+    this.projects.splice(0, this.projects.length, ...newList);
+
+    // Emit event to notify parent component to persist the changes
+    this.projectUpdated.emit();
   }
 }

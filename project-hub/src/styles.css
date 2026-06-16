@@ -36,3 +36,7 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--bg-main-dark);
 }
+
+body.cdk-dragging {
+  user-select: none;
+}

@@ -2,8 +2,10 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../header/header.component';
 import { BoardComponent } from '../board/board.component';
-import { Project, Task, Column } from '../../entities/interfaces';
+
+import { SyncState } from '../entities/types';
 import { ProjectStatus } from '../../entities/enums';
+import { Project, Task, Column } from '../../entities/interfaces';
 
 @Component({
   selector: 'app-main-view',
@@ -14,7 +16,7 @@ import { ProjectStatus } from '../../entities/enums';
 })
 export class MainViewComponent {
   @Input() currentProject: Project | null = null;
-  @Input() isSyncing = false;
+  @Input() syncState: SyncState = 'synced';
   @Input() isDarkMode = false;
 
   @Output() stateChanged = new EventEmitter<void>();

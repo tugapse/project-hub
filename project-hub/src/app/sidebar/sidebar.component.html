@@ -1,40 +1,68 @@
 <div class="sidebar-content" [class.collapsed]="isCollapsed">
   <div class="sidebar-header">
     <div class="sidebar-links">
-      <a class="sidebar-link" href="#" 
-      (click)="selectedProjectStatus=_ProjectStatus.ACTIVE"
-      [class.active]="selectedProjectStatus==_ProjectStatus.ACTIVE">Active</a> / <a
-      class="sidebar-link" href="#" 
-      (click)="selectedProjectStatus=_ProjectStatus.ARCHIVED"
-      [class.active]="selectedProjectStatus==_ProjectStatus.ARCHIVED">Archived</a>
+      <a
+        class="sidebar-link"
+        href="#"
+        (click)="selectedProjectStatus = _ProjectStatus.ACTIVE"
+        [class.active]="selectedProjectStatus == _ProjectStatus.ACTIVE"
+        >Active</a
+      >
+      /
+      <a
+        class="sidebar-link"
+        href="#"
+        (click)="selectedProjectStatus = _ProjectStatus.ARCHIVED"
+        [class.active]="selectedProjectStatus == _ProjectStatus.ARCHIVED"
+        >Archived</a
+      >
     </div>
     <h2>Projects</h2>
   </div>
-  <div class="project-list">
-    @for (p of projects; track p.id) {
-      @if (p.status === selectedProjectStatus) {
-        <div (click)="selectProject(p)" [class.active]="currentProject?.id === p.id" class="project-item">
-          <div class="project-item-header">
-            @if (p.id !== currentProject?.id) {
-              <span class="project-name">{{ p.name }}</span>
-            } @else {
-              <input class="proj-edit-input" type="text" [(ngModel)]="p.name" (blur)="updateProject()"
-                (keyup.enter)="$event.target.blur()" placeholder="Project Name">
-              <button (click)="deleteProject(p, $event)" class="delete-proj-btn">&times;</button>
-            }
-          </div>
-          <div class="progress-bar-container">
-            <div class="progress-segment todo" [style.width.%]="calculateProgress(p)['todo']"></div>
-            <div class="progress-segment doing" [style.width.%]="calculateProgress(p)['doing']"></div>
-            <div class="progress-segment done" [style.width.%]="calculateProgress(p)['done']"></div>
-          </div>
+  <div
+    class="project-list"
+    cdkDropList
+    [cdkDropListData]="displayedProjects"
+    (cdkDropListDropped)="drop($event)"
+  >
+    @for (p of displayedProjects; track p.id) {
+      <div
+        cdkDrag
+        (click)="selectProject(p)"
+        [class.active]="currentProject?.id === p.id"
+        class="project-item"
+      >
+        <div class="project-item-header">
+          @if (p.id !== currentProject?.id) {
+            <span class="project-name">{{ p.name }}</span>
+          } @else {
+            <input
+              class="proj-edit-input"
+              type="text"
+              [(ngModel)]="p.name"
+              (blur)="updateProject()"
+              (keyup.enter)="$event.target.blur()"
+              placeholder="Project Name"
+            />
+            <button (click)="deleteProject(p, $event)" class="delete-proj-btn">&times;</button>
+          }
         </div>
-      }
+        <div class="progress-bar-container">
+          <div class="progress-segment todo" [style.width.%]="calculateProgress(p)['todo']"></div>
+          <div class="progress-segment doing" [style.width.%]="calculateProgress(p)['doing']"></div>
+          <div class="progress-segment done" [style.width.%]="calculateProgress(p)['done']"></div>
+        </div>
+      </div>
     }
   </div>
   <div class="sidebar-footer">
-    <input class="add-proj-input" type="text" [(ngModel)]="newProjectName" (keyup.enter)="addProject()"
-      placeholder="Add new project...">
+    <input
+      class="add-proj-input"
+      type="text"
+      [(ngModel)]="newProjectName"
+      (keyup.enter)="addProject()"
+      placeholder="Add new project..."
+    />
     <button class="add-proj-btn" (click)="addProject()">+</button>
   </div>
 </div>

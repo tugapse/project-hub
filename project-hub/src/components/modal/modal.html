@@ -26,8 +26,8 @@
             <div class="checklist-progress-bar-fill" [style.width.%]="getChecklistProgress(editingTask).percentage">
             </div>
           </div>
-          <div class="checklist-items">
-            <div *ngFor="let item of editingTask.checklist; let i = index" class="checklist-item">
+          <div class="checklist-items" cdkDropList (cdkDropListDropped)="drop($event)">
+            <div *ngFor="let item of editingTask.checklist; let i = index" class="checklist-item" cdkDrag>
               <input type="checkbox" [(ngModel)]="item.completed">
               <input type="text" class="checklist-item-text" [(ngModel)]="item.text">
               <button (click)="deleteChecklistItem(i)" class="delete-checklist-item"></button>

@@ -9,7 +9,7 @@
     (projectSelected)="handleProjectSelected($event)" (projectAdded)="handleProjectAdded($event)"
     (projectDeleted)="handleProjectDeleted($event)" (projectUpdated)="handleProjectUpdated()"></app-sidebar>
 
-  <app-main-view class="main-content" *ngIf="currentProject" [currentProject]="currentProject" [isSyncing]="isSyncing"
+  <app-main-view class="main-content" *ngIf="currentProject" [currentProject]="currentProject" [syncState]="syncState"
     [isDarkMode]="isDarkMode" (themeToggled)="toggleTheme()" (stateChanged)="save()"
     (projectStateToggled)="handleProjectStateToggle()"
     (taskOpened)="openTaskPopup($event)" (taskDeleted)="deleteTask($event.column, $event.task)"></app-main-view>
