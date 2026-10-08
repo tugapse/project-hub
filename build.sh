@@ -6,16 +6,6 @@ set -e
 echo "Checking system dependencies..."
 MISSING_DEPS=0
 
-for cmd in python3 pip node; do
-  if ! command -v "$cmd" &> /dev/null; then
-    # Fallback to check for pip3 if pip is missing
-    if [ "$cmd" = "pip" ] && command -v pip3 &> /dev/null; then
-      continue
-    fi
-    echo "Error: $cmd is not installed."
-    MISSING_DEPS=1
-  fi
-done
 
 # Check specifically for python3-venv
 if command -v python3 &> /dev/null && ! python3 -m venv -h &> /dev/null; then
