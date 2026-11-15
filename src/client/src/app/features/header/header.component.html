@@ -1,0 +1,43 @@
+<header>
+  <div class="header-left">
+    <div class="header-top-row">
+      <ng-container *ngIf="currentProject">
+        <h1>{{ currentProject.name }}</h1>
+      </ng-container>
+      @if (currentProject) {
+        <div class="status-switch" role="radiogroup" aria-label="Project status">
+          @for (status of statuses; track status) {
+            <button
+              type="button"
+              role="radio"
+              class="status-option"
+              [class.selected]="currentProject.status === status"
+              [attr.aria-checked]="currentProject.status === status"
+              (click)="statusChanged.emit(status)"
+            >
+              <app-project-status-icon [status]="status" />
+              {{ statusLabels[status] }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+    <div class="status-pill" *ngIf="syncState" [ngClass]="syncState" [title]="syncState === 'error' ? 'An error occurred during sync' : null">
+      <span class="dot"></span>
+      <ng-container [ngSwitch]="syncState">
+        <span *ngSwitchCase="'syncing'">Syncing...</span>
+        <span *ngSwitchCase="'synced'">System Synced</span>
+        <span *ngSwitchCase="'error'">Sync Error</span>
+        <span *ngSwitchDefault>System Synced</span>
+      </ng-container>
+    </div>
+  </div>
+  <div class="header-right">
+    <button (click)="onToggleTheme()" class="theme-toggle">
+      {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}
+    </button>
+    <button (click)="auth.logout()" class="theme-toggle" [title]="'Signed in as ' + auth.username()">
+      Log out
+    </button>
+  </div>
+</header>

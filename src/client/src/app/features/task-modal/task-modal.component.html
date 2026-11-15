@@ -1,0 +1,60 @@
+@if (showPopup && editingTask){
+
+<div class="popup-overlay">
+  <div class="popup-modal">
+    <div class="popup-header">
+      <div class="popup-title-container">
+        <span class="popup-title-icon">{{ editingTask.icon }}</span>
+        <input class="task-title-input" [(ngModel)]="editingTask.content">
+      </div>
+      <button (click)="cancel()" class="close-popup"></button>
+    </div>
+    <div class="popup-content-wrapper">
+      <div class="popup-body">
+        <h4><span class="notes-icon-header"></span> Description</h4>
+        <textarea [(ngModel)]="editingTask.description" placeholder="Add a description..." class="desc-area"></textarea>
+        <div class="notes-section">
+          <h4><span class="notes-icon-header"></span> Notes</h4>
+          <textarea [(ngModel)]="editingTask.notes" placeholder="Add some notes..."
+            class="notes-area"></textarea>
+        </div>
+      </div>
+      <div class="popup-sidebar">
+        <div class="checklist-section">
+          <h4><span class="checklist-icon-header"></span> <input [(ngModel)]="editingTask.checklistTitle" class="checklist-title-input"></h4>
+          <div class="checklist-progress-bar-container" *ngIf="editingTask.checklist.length">
+            <div class="checklist-progress-bar-fill" [style.width.%]="getChecklistProgress(editingTask).percentage">
+            </div>
+          </div>
+          <div class="checklist-items" cdkDropList (cdkDropListDropped)="drop($event)">
+            <div *ngFor="let item of editingTask.checklist; let i = index" class="checklist-item" cdkDrag>
+              <input type="checkbox" [(ngModel)]="item.completed">
+              <input type="text" class="checklist-item-text" [(ngModel)]="item.text">
+              <button (click)="deleteChecklistItem(item)" class="delete-checklist-item"></button>
+            </div>
+          </div>
+          <div class="add-checklist-item">
+            <input #checklistItemInput
+              (keyup.enter)="addChecklistItem(checklistItemInput.value); checklistItemInput.value=''"
+              placeholder="+ Add an item">
+          </div>
+        </div>
+        <div class="task-tools">
+          <div class="tool-row">
+            <span *ngFor="let c of TASK_COLORS" [style.background]="c" (click)="updateTask('color', c)"
+              class="color-dot" [class.selected]="editingTask.color === c"></span>
+          </div>
+          <div class="tool-row">
+            <span *ngFor="let i of TASK_ICONS" (click)="updateTask('icon', i)" class="icon-option"
+              [class.selected]="editingTask.icon === i">{{ i }}</span>
+          </div>
+        </div>
+        <div class="popup-footer">
+          <button (click)="cancel()" class="btn-cancel">Close</button>
+          <button (click)="saveAndClose()" class="btn-save">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+}
