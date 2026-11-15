@@ -4,7 +4,9 @@ import { Subject, catchError, concatMap, debounceTime, map, of } from 'rxjs';
 
 import { Column, Project, ProjectStatus, SyncState, Task } from '../models';
 import { ApiService } from '../services/api.service';
+import { AuthService } from '../services/auth.service';
 
+/** Prefix of the localStorage key that remembers each user's last opened project. */
 const LAST_PROJECT_KEY = 'last-project-id';
 const SAVE_DEBOUNCE_MS = 300;
 
@@ -18,6 +20,7 @@ const SAVE_DEBOUNCE_MS = 300;
 @Injectable({ providedIn: 'root' })
 export class ProjectStore {
   private api = inject(ApiService);
+  private auth = inject(AuthService);
 
   readonly projects = signal<Project[]>([]);
   readonly currentProject = signal<Project | null>(null);
@@ -47,10 +50,17 @@ export class ProjectStore {
       });
   }
 
+  private get lastProjectKey(): string {
+    return `${LAST_PROJECT_KEY}:${this.auth.username() ?? ''}`;
+  }
+
   load() {
+    // Drop whatever a previously signed-in user had open.
+    this.projects.set([]);
+    this.currentProject.set(null);
     this.api.fetchProjects().subscribe((projects) => {
       this.projects.set(projects);
-      const lastId = localStorage.getItem(LAST_PROJECT_KEY);
+      const lastId = localStorage.getItem(this.lastProjectKey);
       if (lastId) {
         const project = projects.find((p) => p.id === lastId) ?? projects[0] ?? null;
         if (project && project.status !== ProjectStatus.ARCHIVED) {
@@ -70,7 +80,7 @@ export class ProjectStore {
   select(project: Project) {
     this.currentProject.set(project);
     if (project.status !== ProjectStatus.ARCHIVED) {
-      localStorage.setItem(LAST_PROJECT_KEY, project.id);
+      localStorage.setItem(this.lastProjectKey, project.id);
     }
   }
 

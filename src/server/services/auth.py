@@ -1,9 +1,10 @@
-"""Single-user authentication: password, session/API tokens and the device authorization flow."""
+"""Multi-user authentication: passwords, session/API tokens and the device authorization flow."""
 
 import hashlib
 import hmac
 import json
 import os
+import re
 import secrets
 import threading
 import time
@@ -11,15 +12,17 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Literal, Optional
 
-from .storage import write_json_atomic
+from .storage import DATA_DIR, write_json_atomic
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-DEFAULT_AUTH_FILE = PROJECT_ROOT / "data" / "auth.json"
+DEFAULT_AUTH_FILE = DATA_DIR / "auth.json"
 
 TOKEN_PREFIX = "phub_"
 SESSION_TTL_SECONDS = 30 * 24 * 3600
 # How often `last_used_at` is persisted, so every API call does not rewrite the file.
 LAST_USED_WRITE_INTERVAL = 300
+
+USERNAME_RE = re.compile(r"^[A-Za-z0-9._-]{1,32}$")
+MIN_PASSWORD_LENGTH = 8
 
 TokenKind = Literal["session", "api"]
 
@@ -46,8 +49,24 @@ def check_password(password: str, encoded: str) -> bool:
     return hmac.compare_digest(digest.hex(), digest_hex)
 
 
+# Checked against when the username does not exist, so timing does not reveal valid usernames.
+_DUMMY_PASSWORD_HASH = hash_password(secrets.token_hex(16))
+
+
 def _hash_token(raw: str) -> str:
     return hashlib.sha256(raw.encode()).hexdigest()
+
+
+class UserError(Exception):
+    """Invalid user operation (duplicate or unknown username, invalid name...)."""
+
+
+@dataclass
+class UserRecord:
+    id: str
+    username: str
+    password_hash: str = field(repr=False)
+    created_at: float
 
 
 @dataclass
@@ -59,17 +78,25 @@ class TokenRecord:
     created_at: float
     expires_at: Optional[float] = None
     last_used_at: Optional[float] = None
+    user_id: str = ""
 
     def is_expired(self, now: float) -> bool:
         return self.expires_at is not None and now >= self.expires_at
 
 
+def _new_user_id() -> str:
+    return secrets.token_hex(8)
+
+
 class AuthStore:
-    """Persists the single user and the issued tokens in a JSON file (only token hashes are stored)."""
+    """Persists the users and the issued tokens in a JSON file (only hashes are stored).
+
+    Each token belongs to one user; removing a user revokes all of their tokens.
+    """
 
     def __init__(self, path: Optional[Path] = None):
         self.path = Path(path or os.getenv("PROJECT_HUB_AUTH_FILE", str(DEFAULT_AUTH_FILE)))
-        self._user: Optional[dict] = None
+        self._users: list[UserRecord] = []
         self._tokens: list[TokenRecord] = []
         self._mtime: Optional[float] = None
         self._lock = threading.RLock()
@@ -84,59 +111,136 @@ class AuthStore:
 
     def load(self):
         with self._lock:
-            self._user, self._tokens = None, []
+            self._users, self._tokens = [], []
             self._mtime = self._current_mtime()
             if self._mtime is None or self.path.stat().st_size == 0:
                 return
             with open(self.path, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            self._user = data.get("user")
+            self._users = [UserRecord(**u) for u in data.get("users", [])]
             self._tokens = [TokenRecord(**t) for t in data.get("tokens", [])]
+            if "user" in data and "users" not in data:
+                self._migrate_single_user(data["user"])
+
+    def _migrate_single_user(self, legacy: Optional[dict]):
+        """Converts the old single-user format; existing tokens are kept and given to that user."""
+        if legacy:
+            user = UserRecord(
+                id=_new_user_id(),
+                username=legacy["username"],
+                password_hash=legacy["password_hash"],
+                created_at=time.time(),
+            )
+            self._users = [user]
+            for t in self._tokens:
+                t.user_id = user.id
+        self._save()
 
     def _reload_if_changed(self):
-        """Picks up edits made by the CLI (create-user, tokens revoke) while the server runs."""
+        """Picks up edits made by the CLI (users, tokens revoke) while the server runs."""
         if self._current_mtime() != self._mtime:
             self.load()
 
     def _save(self):
         now = time.time()
-        self._tokens = [t for t in self._tokens if not t.is_expired(now)]
-        data = {"user": self._user, "tokens": [asdict(t) for t in self._tokens]}
+        user_ids = {u.id for u in self._users}
+        self._tokens = [t for t in self._tokens if not t.is_expired(now) and t.user_id in user_ids]
+        data = {
+            "users": [asdict(u) for u in self._users],
+            "tokens": [asdict(t) for t in self._tokens],
+        }
         write_json_atomic(self.path, data, mode=0o600)
         self._mtime = self._current_mtime()
 
-    # --- user ---
+    # --- users ---
 
-    def has_user(self) -> bool:
+    def _find(self, username: str) -> Optional[UserRecord]:
+        wanted = username.casefold()
+        return next((u for u in self._users if u.username.casefold() == wanted), None)
+
+    def has_users(self) -> bool:
         with self._lock:
             self._reload_if_changed()
-            return self._user is not None
+            return bool(self._users)
 
-    @property
-    def username(self) -> Optional[str]:
-        return self._user["username"] if self._user else None
-
-    def set_user(self, username: str, password: str):
-        """Creates or replaces the single user. Existing sessions are revoked; API tokens are kept."""
+    def list_users(self) -> list[UserRecord]:
         with self._lock:
             self._reload_if_changed()
-            self._user = {"username": username, "password_hash": hash_password(password)}
-            self._tokens = [t for t in self._tokens if t.kind != "session"]
+            return sorted(self._users, key=lambda u: u.created_at)
+
+    def get_user(self, user_id: str) -> Optional[UserRecord]:
+        with self._lock:
+            self._reload_if_changed()
+            return next((u for u in self._users if u.id == user_id), None)
+
+    def find_user(self, username: str) -> Optional[UserRecord]:
+        with self._lock:
+            self._reload_if_changed()
+            return self._find(username)
+
+    @staticmethod
+    def validate_username(username: str):
+        if not USERNAME_RE.match(username):
+            raise UserError("Username must be 1-32 characters: letters, digits, '.', '_' or '-'.")
+
+    @staticmethod
+    def validate_password(password: str):
+        if len(password) < MIN_PASSWORD_LENGTH:
+            raise UserError(f"Password must have at least {MIN_PASSWORD_LENGTH} characters.")
+
+    def add_user(self, username: str, password: str) -> UserRecord:
+        self.validate_username(username)
+        self.validate_password(password)
+        password_hash = hash_password(password)
+        with self._lock:
+            self._reload_if_changed()
+            if self._find(username):
+                raise UserError(f"User '{username}' already exists.")
+            user = UserRecord(
+                id=_new_user_id(), username=username, password_hash=password_hash, created_at=time.time()
+            )
+            self._users.append(user)
             self._save()
+            return user
 
-    def verify_password(self, username: str, password: str) -> bool:
+    def set_password(self, username: str, password: str) -> UserRecord:
+        """Changes a user's password and revokes their browser sessions (API tokens are kept)."""
+        self.validate_password(password)
+        password_hash = hash_password(password)
         with self._lock:
             self._reload_if_changed()
-            user = self._user
-        if not user:
-            return False
-        # Always run the hash so timing does not reveal whether the username matched.
-        password_ok = check_password(password, user["password_hash"])
-        return hmac.compare_digest(username.encode(), user["username"].encode()) and password_ok
+            user = self._find(username)
+            if not user:
+                raise UserError(f"No user named '{username}'.")
+            user.password_hash = password_hash
+            self._tokens = [t for t in self._tokens if not (t.user_id == user.id and t.kind == "session")]
+            self._save()
+            return user
+
+    def remove_user(self, username: str) -> UserRecord:
+        """Removes a user and revokes all of their tokens. Their data is handled by the caller."""
+        with self._lock:
+            self._reload_if_changed()
+            user = self._find(username)
+            if not user:
+                raise UserError(f"No user named '{username}'.")
+            self._users.remove(user)
+            self._save()  # also drops the user's tokens
+            return user
+
+    def authenticate(self, username: str, password: str) -> Optional[UserRecord]:
+        with self._lock:
+            self._reload_if_changed()
+            user = self._find(username)
+        # Always run the hash so timing does not reveal whether the username exists.
+        password_ok = check_password(password, user.password_hash if user else _DUMMY_PASSWORD_HASH)
+        return user if user and password_ok else None
 
     # --- tokens ---
 
-    def issue_token(self, kind: TokenKind, name: str, ttl: Optional[float] = None) -> tuple[str, TokenRecord]:
+    def issue_token(
+        self, user_id: str, kind: TokenKind, name: str, ttl: Optional[float] = None
+    ) -> tuple[str, TokenRecord]:
         """Returns (raw_token, record). The raw token is only available here."""
         raw = TOKEN_PREFIX + secrets.token_urlsafe(32)
         now = time.time()
@@ -147,14 +251,18 @@ class AuthStore:
             hash=_hash_token(raw),
             created_at=now,
             expires_at=now + ttl if ttl else None,
+            user_id=user_id,
         )
         with self._lock:
             self._reload_if_changed()
+            if not any(u.id == user_id for u in self._users):
+                raise UserError("Unknown user.")
             self._tokens.append(record)
             self._save()
         return raw, record
 
-    def resolve_token(self, raw: Optional[str]) -> Optional[TokenRecord]:
+    def resolve_token(self, raw: Optional[str]) -> Optional[tuple[UserRecord, TokenRecord]]:
+        """Returns the owner and the record of a valid token, or None."""
         if not raw or not raw.startswith(TOKEN_PREFIX):
             return None
         digest = _hash_token(raw)
@@ -163,7 +271,8 @@ class AuthStore:
             self._reload_if_changed()
             for t in self._tokens:
                 if hmac.compare_digest(t.hash, digest):
-                    if t.is_expired(now):
+                    user = next((u for u in self._users if u.id == t.user_id), None)
+                    if user is None or t.is_expired(now):
                         return None
                     if t.last_used_at is None or now - t.last_used_at > LAST_USED_WRITE_INTERVAL:
                         t.last_used_at = now
@@ -171,7 +280,7 @@ class AuthStore:
                             self._save()
                         except OSError:
                             pass  # bookkeeping only; never fail a request because of it
-                    return t
+                    return user, t
         return None
 
     def revoke(self, token_id: str) -> bool:
@@ -185,8 +294,10 @@ class AuthStore:
             return True
 
     def list_tokens(self) -> list[TokenRecord]:
-        now = time.time()
-        return [t for t in self._tokens if not t.is_expired(now)]
+        with self._lock:
+            self._reload_if_changed()
+            now = time.time()
+            return [t for t in self._tokens if not t.is_expired(now)]
 
 
 # --- Device authorization flow (RFC 8628 style) ---
@@ -265,14 +376,15 @@ class DeviceFlow:
             req = self._find_by_user_code(user_code)
             return req if req and req.status == "pending" else None
 
-    def decide(self, user_code: str, approve: bool) -> DeviceRequest:
+    def decide(self, user_code: str, approve: bool, user_id: str) -> DeviceRequest:
+        """Approving issues an API token owned by `user_id` (the user who approved in the browser)."""
         with self._lock:
             self._purge(time.time())
             req = self._find_by_user_code(user_code)
             if not req or req.status != "pending":
                 raise DeviceFlowError("invalid_user_code")
             if approve:
-                raw, _ = self.store.issue_token("api", req.client_name)
+                raw, _ = self.store.issue_token(user_id, "api", req.client_name)
                 req.access_token = raw
                 req.status = "approved"
             else:
