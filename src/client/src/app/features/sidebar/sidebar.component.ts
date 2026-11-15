@@ -1,8 +1,7 @@
 import { Component, Input, Output, EventEmitter, HostBinding } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ProjectStatus } from '../../entities/enums';
-import { Project, Task, Column } from '../../entities/interfaces';
+import { ProjectStatus, Project, Task, Column } from '../../core/models';
 import {
   CdkDragDrop,
   DragDropModule,

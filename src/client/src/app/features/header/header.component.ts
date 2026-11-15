@@ -1,7 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Project } from '../../entities/interfaces';
-import { SyncState } from '../entities/types';
+import { Project, SyncState } from '../../core/models';
 
 @Component({
   selector: 'app-header',

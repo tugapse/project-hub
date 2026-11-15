@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DragDropModule, CdkDropList, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { TaskCardComponent } from '../task-card/task-card.component';
-import { Column, Task } from '../../entities/interfaces';
+import { Column, Task } from '../../../core/models';
 
 @Component({
   selector: 'app-column',
@@ -25,7 +25,6 @@ export class ColumnComponent {
   }
 
   deleteTask(task: Task) {
-    debugger
     if (this.column) {
       this.taskDeleted.emit({ column: this.column, task });
     }

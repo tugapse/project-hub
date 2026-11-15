@@ -2,15 +2,14 @@ import { CdkDragDrop, moveItemInArray, DragDropModule } from "@angular/cdk/drag-
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { TASK_COLORS, TASK_ICONS } from "../../entities/icons-colors";
-import { Task, ChecklistItem } from "../../entities/interfaces";
+import { TASK_COLORS, TASK_ICONS, Task, ChecklistItem } from '../../core/models';
 
 @Component({
   selector: 'task-modal',
   standalone: true,
   imports: [CommonModule, FormsModule, DragDropModule],
-  templateUrl: './modal.html',
-  styleUrls: ['./modal.css'],
+  templateUrl: './task-modal.component.html',
+  styleUrls: ['./task-modal.component.css'],
 })
 export class TaskModalComponent {
 

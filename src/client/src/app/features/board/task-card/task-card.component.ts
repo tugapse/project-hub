@@ -9,7 +9,7 @@ import {
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
-import { Task, Column } from '../../entities/interfaces';
+import { Task, Column } from '../../../core/models';
 
 @Component({
   selector: 'app-task-card',
@@ -72,7 +72,6 @@ export class TaskCardComponent {
   }
 
   deleteTask(event: MouseEvent) {
-    debugger
     event.stopPropagation();
     this.taskDeleted.emit(this.task);
   }

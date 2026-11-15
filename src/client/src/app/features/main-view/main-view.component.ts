@@ -3,9 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../header/header.component';
 import { BoardComponent } from '../board/board.component';
 
-import { SyncState } from '../entities/types';
-import { ProjectStatus } from '../../entities/enums';
-import { Project, Task, Column } from '../../entities/interfaces';
+import { SyncState, ProjectStatus, Project, Task, Column } from '../../core/models';
 
 @Component({
   selector: 'app-main-view',
@@ -23,7 +21,6 @@ export class MainViewComponent {
   @Output() taskOpened = new EventEmitter<Task>();
   @Output() taskDeleted = new EventEmitter<{ column: Column, task: Task }>();
   @Output() themeToggled = new EventEmitter<void>();
-  @Output() projectStateToggled = new EventEmitter<void>();
 
   get isProjectArchived(): boolean {
     return this.currentProject?.status === ProjectStatus.ARCHIVED;

@@ -1,19 +1,22 @@
-<div class="app-wrapper" [class.sidebar-collapsed]="isSidebarCollapsed">
+<div class="app-wrapper" [class.sidebar-collapsed]="isSidebarCollapsed()">
   <button (click)="toggleSidebar()" class="sidebar-toggle-btn">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
     </svg>
   </button>
 
-  <app-sidebar [isCollapsed]="isSidebarCollapsed" [projects]="projects" [currentProject]="currentProject"
-    (projectSelected)="handleProjectSelected($event)" (projectAdded)="handleProjectAdded($event)"
-    (projectDeleted)="handleProjectDeleted($event)" (projectUpdated)="handleProjectUpdated()"></app-sidebar>
+  <app-sidebar [isCollapsed]="isSidebarCollapsed()" [projects]="store.projects()"
+    [currentProject]="store.currentProject()" (projectSelected)="store.select($event)"
+    (projectAdded)="store.add($event)" (projectDeleted)="store.delete($event)"
+    (projectUpdated)="store.save()"></app-sidebar>
 
-  <app-main-view class="main-content" *ngIf="currentProject" [currentProject]="currentProject" [syncState]="syncState"
-    [isDarkMode]="isDarkMode" (themeToggled)="toggleTheme()" (stateChanged)="save()"
-    (projectStateToggled)="handleProjectStateToggle()"
-    (taskOpened)="openTaskPopup($event)" (taskDeleted)="deleteTask($event.column, $event.task)"></app-main-view>
+  @if (store.currentProject(); as project) {
+    <app-main-view class="main-content" [currentProject]="project" [syncState]="store.syncState()"
+      [isDarkMode]="theme.isDarkMode()" (themeToggled)="theme.toggle()" (stateChanged)="store.save()"
+      (taskOpened)="openTask($event)"
+      (taskDeleted)="store.deleteTask($event.column, $event.task)"></app-main-view>
+  }
 
-  <task-modal [showPopup]="showPopup" [editingTask]="editingTask" (close)="handleModalClosed()"
-    (update)="handleTaskUpdate($event)"></task-modal>
+  <task-modal [showPopup]="editingTask() !== null" [editingTask]="editingTask()" (close)="closeTask()"
+    (update)="saveTask($event)"></task-modal>
 </div>

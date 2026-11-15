@@ -1,0 +1,126 @@
+import { DestroyRef, Injectable, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject, catchError, concatMap, debounceTime, map, of } from 'rxjs';
+
+import { Column, Project, ProjectStatus, SyncState, Task } from '../models';
+import { ApiService } from '../services/api.service';
+
+const LAST_PROJECT_KEY = 'last-project-id';
+const SAVE_DEBOUNCE_MS = 300;
+
+/**
+ * Single source of truth for projects and their sync state.
+ *
+ * Components still mutate project objects in place (drag & drop, inline edits)
+ * and then call `save()`. Saves are debounced and sent one at a time, in order,
+ * so rapid changes never race each other on the server.
+ */
+@Injectable({ providedIn: 'root' })
+export class ProjectStore {
+  private api = inject(ApiService);
+
+  readonly projects = signal<Project[]>([]);
+  readonly currentProject = signal<Project | null>(null);
+  readonly syncState = signal<SyncState>('synced');
+
+  private saveRequests = new Subject<number>();
+  private saveVersion = 0;
+
+  constructor() {
+    this.saveRequests
+      .pipe(
+        debounceTime(SAVE_DEBOUNCE_MS),
+        concatMap((version) =>
+          this.api.saveProjects(this.projects()).pipe(
+            map(() => ({ version, ok: true })),
+            catchError(() => of({ version, ok: false })),
+          ),
+        ),
+        takeUntilDestroyed(inject(DestroyRef)),
+      )
+      .subscribe(({ version, ok }) => {
+        if (!ok) {
+          this.syncState.set('error');
+        } else if (version === this.saveVersion) {
+          this.syncState.set('synced');
+        }
+      });
+  }
+
+  load() {
+    this.api.fetchProjects().subscribe((projects) => {
+      this.projects.set(projects);
+      const lastId = localStorage.getItem(LAST_PROJECT_KEY);
+      if (lastId) {
+        const project = projects.find((p) => p.id === lastId) ?? projects[0] ?? null;
+        if (project && project.status !== ProjectStatus.ARCHIVED) {
+          this.select(project);
+        }
+      }
+    });
+  }
+
+  save() {
+    this.syncState.set('syncing');
+    this.saveRequests.next(++this.saveVersion);
+  }
+
+  // --- Projects ---
+
+  select(project: Project) {
+    this.currentProject.set(project);
+    if (project.status !== ProjectStatus.ARCHIVED) {
+      localStorage.setItem(LAST_PROJECT_KEY, project.id);
+    }
+  }
+
+  add(name: string) {
+    name = name.trim();
+    if (!name) return;
+    const project: Project = {
+      id: Date.now().toString(),
+      name,
+      columns: [
+        { id: 'todo', title: 'To Do', tasks: [] },
+        { id: 'doing', title: 'Doing', tasks: [] },
+        { id: 'done', title: 'Done', tasks: [] },
+      ],
+      status: ProjectStatus.ACTIVE,
+    };
+    this.projects.update((list) => [...list, project]);
+    this.select(project);
+    this.save();
+  }
+
+  delete(project: Project) {
+    const remaining = this.projects().filter((p) => p.id !== project.id);
+    this.projects.set(remaining);
+    if (this.currentProject()?.id === project.id) {
+      this.currentProject.set(remaining[0] ?? null);
+    }
+    this.save();
+  }
+
+  // --- Tasks ---
+
+  updateTask(updated: Task) {
+    const project = this.currentProject();
+    if (!project) return;
+    for (const column of project.columns) {
+      const index = column.tasks.findIndex((t) => t.id === updated.id);
+      if (index !== -1) {
+        column.tasks[index] = updated;
+        break;
+      }
+    }
+    this.save();
+  }
+
+  deleteTask(column: Column, task: Task) {
+    const index = column.tasks.findIndex((t) => t.id === task.id);
+    if (index !== -1) {
+      column.tasks.splice(index, 1);
+      this.save();
+    }
+  }
+}
