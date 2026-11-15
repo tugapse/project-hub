@@ -36,6 +36,7 @@ src/
 dist/        Angular build output, served by the server (generated)
 data/        auth.json + users/<id>/projects*.json (generated)
 examples/    project_hub_client.py — example API client (device login)
+deploy/      install.sh + setup-nginx.sh — systemd + nginx deploy (see deploy/README.md)
 build.sh     Creates .venv, installs deps, builds the client into dist/
 run.sh       Runs the server (API + built client) on port 9998
 run-dev.sh   Runs the server + Angular dev server (port 4200)
@@ -110,6 +111,10 @@ cd src
 * `PROJECT_HUB_COOKIE_SECURE` (default `0`): set to `1` when served over HTTPS
 
 **To stop:** Press Ctrl+C. The scripts trap the signal and free the ports.
+
+## 🍓 Deploy
+
+To run it as a service behind nginx (e.g. on a Raspberry Pi), see [deploy/README.md](deploy/README.md).
 
 ---
 *Created as part of a personal tooling and learning.*

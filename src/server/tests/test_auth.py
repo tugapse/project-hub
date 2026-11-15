@@ -163,3 +163,11 @@ def test_auth_file_stores_only_hashes(client):
     assert PASSWORD not in content
     assert (main.auth_store.path.stat().st_mode & 0o777) == 0o600
 
+
+def test_device_link_honours_forwarded_prefix(client):
+    r = client.post(
+        "/api/auth/device/code", json={"client_name": "x"}, headers={"X-Forwarded-Prefix": "/hub"}
+    )
+    body = r.json()
+    assert body["verification_uri"].endswith("/hub/")
+    assert body["verification_uri_complete"].endswith(f"/hub/?user_code={body['user_code']}")

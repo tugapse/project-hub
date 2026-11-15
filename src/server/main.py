@@ -130,7 +130,17 @@ def me(principal: Principal = Depends(require_auth)):
 
 
 def _client_base_url(request: Request) -> str:
-    base = PUBLIC_URL or str(request.base_url)
+    """URL of the client, as seen by the browser.
+
+    Behind a reverse proxy mounted on a sub-path (e.g. nginx `location /hub/`), the proxy sends
+    `X-Forwarded-Prefix: /hub`. The value only ends up in the link shown to whoever started the
+    device flow, so it does not need to be trusted.
+    """
+    if PUBLIC_URL:
+        base = PUBLIC_URL
+    else:
+        prefix = request.headers.get("X-Forwarded-Prefix", "").strip().strip("/")
+        base = str(request.base_url) + (prefix + "/" if prefix else "")
     return base if base.endswith("/") else base + "/"
 
 
