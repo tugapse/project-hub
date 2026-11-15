@@ -28,7 +28,7 @@ echo "" > backend.log
 echo "📡 Starting Backend..."
 $ACTIVATE_PYTHON
 
-python3 $FOLDER/server/main.py > backend.log 2>&1 &
+python3 $FOLDER/src/server/main.py > backend.log 2>&1 &
 
 echo "📖 Streaming logs (Ctrl+C to stop everything):"
 echo "---------------------------------------"

@@ -10,8 +10,8 @@ This is a simple Python backend that saves your Kanban board data to a local fil
 * **Validation:** Uses Pydantic models to make sure the task data coming from the frontend is formatted correctly.
 
 ## Running it
-1. Install the requirements: `pip install fastapi uvicorn pydantic`.
-2. Run the server: `python3 server/main.py`.
+1. Install the requirements: `pip install -r src/server/requirements.txt`.
+2. Run the server: `python3 src/server/main.py`.
 3. The API will be live at http://localhost:9998.
 
 ## Note

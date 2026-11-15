@@ -2,7 +2,6 @@
 
 # --- CONFIGURATION ---
 ACTIVATE_PYTHON="source .venv/bin/activate" 
-DB_FILE="projects.json"
 BACKEND_PORT=9998
 FRONTEND_PORT=4200
 
@@ -22,8 +21,6 @@ cleanup() {
 # Trap Ctrl+C
 trap cleanup SIGINT
 
-# --- PRE-FLIGHT ---
-if [ ! -f "$DB_FILE" ]; then echo "[]" > "$DB_FILE"; fi
 
 # Clear old logs
 echo "" > backend.log
@@ -32,12 +29,12 @@ echo "" > frontend.log
 # --- STARTUP ---
 echo "📡 Starting Backend..."
 $ACTIVATE_PYTHON
-python3 server/main.py > backend.log 2>&1 &
+python3 src/server/main.py > backend.log 2>&1 &
 
 echo "💻 Starting Frontend..."
-cd project-hub
-ng serve --host 0.0.0.0 --port $FRONTEND_PORT > ../frontend.log 2>&1 &
-cd ..
+cd src/client
+ng serve --host 0.0.0.0 --port $FRONTEND_PORT > ../../frontend.log 2>&1 &
+cd ../..
 
 echo "---------------------------------------"
 echo "🚀 Trello Suite is LIVE"
