@@ -19,46 +19,107 @@ def cmd_serve(_args):
     uvicorn.run(app, host=host, port=port)
 
 
-def cmd_create_user(args):
+def _store():
     from .services.auth import AuthStore
 
     store = AuthStore()
     store.load()
-    username = args.username or input("Username: ").strip()
-    if not username:
-        sys.exit("Username cannot be empty.")
-    if store.has_user():
-        answer = input(f"A user ('{store.username}') already exists. Replace it? [y/N] ")
-        if answer.strip().lower() != "y":
-            sys.exit("Aborted.")
+    return store
+
+
+def _ask_password() -> str:
     password = getpass.getpass("Password: ")
-    if len(password) < 8:
-        sys.exit("Password must have at least 8 characters.")
     if getpass.getpass("Confirm password: ") != password:
         sys.exit("Passwords do not match.")
-    store.set_user(username, password)
-    print(f"✅ User '{username}' saved to {store.path}.")
+    return password
+
+
+def cmd_users_add(args):
+    from .services.auth import UserError
+    from .services.database import DatabaseRegistry
+
+    store = _store()
+    username = args.username or input("Username: ").strip()
+    try:
+        store.validate_username(username)
+        if store.find_user(username):
+            raise UserError(f"User '{username}' already exists.")
+        first_user = not store.has_users()
+        user = store.add_user(username, _ask_password())
+    except UserError as e:
+        sys.exit(str(e))
+    print(f"✅ User '{user.username}' created.")
+    if first_user and DatabaseRegistry().adopt_legacy_data(user.id):
+        print("   Existing projects were moved into this user's data folder.")
+
+
+def cmd_users_list(_args):
+    from .services.database import DatabaseRegistry
+
+    store = _store()
+    users = store.list_users()
+    if not users:
+        print("No users.")
+        return
+    registry = DatabaseRegistry()
+    print(f"{'USERNAME':<20}{'ID':<18}{'CREATED':<18}DATA")
+    for u in users:
+        print(f"{u.username:<20}{u.id:<18}{_fmt_time(u.created_at):<18}{registry.user_dir(u.id)}")
+
+
+def cmd_users_passwd(args):
+    from .services.auth import UserError
+
+    store = _store()
+    if not store.find_user(args.username):
+        sys.exit(f"No user named '{args.username}'.")
+    try:
+        user = store.set_password(args.username, _ask_password())
+    except UserError as e:
+        sys.exit(str(e))
+    print(f"✅ Password of '{user.username}' changed; their browser sessions were signed out.")
+
+
+def cmd_users_remove(args):
+    from .services.auth import UserError
+    from .services.database import DatabaseRegistry
+
+    store = _store()
+    user = store.find_user(args.username)
+    if not user:
+        sys.exit(f"No user named '{args.username}'.")
+    if not args.yes:
+        answer = input(f"Remove user '{user.username}' and revoke all their tokens? [y/N] ")
+        if answer.strip().lower() != "y":
+            sys.exit("Aborted.")
+    try:
+        store.remove_user(user.username)
+    except UserError as e:
+        sys.exit(str(e))
+    trashed = DatabaseRegistry().trash(user.id)
+    print(f"✅ User '{user.username}' removed.")
+    if trashed:
+        print(f"   Their data was moved to {trashed}")
 
 
 def cmd_tokens_list(_args):
-    from .services.auth import AuthStore
-
-    store = AuthStore()
-    store.load()
+    store = _store()
     tokens = store.list_tokens()
     if not tokens:
         print("No tokens.")
         return
-    print(f"{'ID':<10}{'KIND':<9}{'CREATED':<18}{'LAST USED':<18}NAME")
+    usernames = {u.id: u.username for u in store.list_users()}
+    print(f"{'ID':<10}{'USER':<20}{'KIND':<9}{'CREATED':<18}{'LAST USED':<18}NAME")
     for t in tokens:
-        print(f"{t.id:<10}{t.kind:<9}{_fmt_time(t.created_at):<18}{_fmt_time(t.last_used_at):<18}{t.name}")
+        user = usernames.get(t.user_id, "?")
+        print(
+            f"{t.id:<10}{user:<20}{t.kind:<9}{_fmt_time(t.created_at):<18}"
+            f"{_fmt_time(t.last_used_at):<18}{t.name}"
+        )
 
 
 def cmd_tokens_revoke(args):
-    from .services.auth import AuthStore
-
-    store = AuthStore()
-    store.load()
+    store = _store()
     if not store.revoke(args.id):
         sys.exit(f"No token with id '{args.id}'.")
     print(f"✅ Token '{args.id}' revoked.")
@@ -70,9 +131,24 @@ def main():
 
     sub.add_parser("serve", help="run the HTTP server (default)").set_defaults(func=cmd_serve)
 
-    p_user = sub.add_parser("create-user", help="create or replace the login user")
-    p_user.add_argument("--username")
-    p_user.set_defaults(func=cmd_create_user)
+    p_users = sub.add_parser("users", help="manage users")
+    users_sub = p_users.add_subparsers(dest="users_command", required=True)
+    p_add = users_sub.add_parser("add", help="create a user")
+    p_add.add_argument("username", nargs="?")
+    p_add.set_defaults(func=cmd_users_add)
+    users_sub.add_parser("list", help="list users").set_defaults(func=cmd_users_list)
+    p_passwd = users_sub.add_parser("passwd", help="change a user's password")
+    p_passwd.add_argument("username")
+    p_passwd.set_defaults(func=cmd_users_passwd)
+    p_remove = users_sub.add_parser("remove", help="remove a user (their data goes to data/deleted/)")
+    p_remove.add_argument("username")
+    p_remove.add_argument("-y", "--yes", action="store_true", help="do not ask for confirmation")
+    p_remove.set_defaults(func=cmd_users_remove)
+
+    # Kept for compatibility with the single-user setup instructions.
+    p_create = sub.add_parser("create-user", help="alias of `users add`")
+    p_create.add_argument("--username")
+    p_create.set_defaults(func=cmd_users_add)
 
     p_tokens = sub.add_parser("tokens", help="manage API tokens and sessions")
     tokens_sub = p_tokens.add_subparsers(dest="tokens_command", required=True)

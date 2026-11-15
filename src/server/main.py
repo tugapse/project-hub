@@ -23,10 +23,13 @@ from .entities.dto import (
 from .security import (
     COOKIE_SECURE,
     SESSION_COOKIE,
+    Principal,
     auth_store,
+    databases,
     extract_token,
     require_auth,
     require_session,
+    user_database,
 )
 from .services.auth import (
     DEVICE_CODE_TTL,
@@ -34,7 +37,6 @@ from .services.auth import (
     DeviceFlow,
     DeviceFlowError,
     LoginThrottle,
-    TokenRecord,
 )
 from .services.database import DatabaseError, ProjectsDatabase
 
@@ -52,12 +54,12 @@ PUBLIC_URL = os.getenv("PROJECT_HUB_PUBLIC_URL")
 
 app = FastAPI(title="Project Hub")
 
-database = ProjectsDatabase()
-database.load_from_disk()
-
 auth_store.load()
-if not auth_store.has_user():
-    logger.warning("No user configured: run `python -m server create-user` to enable login.")
+_users = auth_store.list_users()
+if not _users:
+    logger.warning("No users configured: run `python -m server users add` to enable login.")
+elif databases.adopt_legacy_data(_users[0].id):
+    logger.warning("Moved existing projects into the data folder of user '%s'.", _users[0].username)
 device_flow = DeviceFlow(auth_store)
 login_throttle = LoginThrottle()
 
@@ -87,18 +89,19 @@ def login(body: LoginRequest, request: Request, response: Response):
             detail=f"Too many failed attempts. Try again in {retry_after}s.",
             headers={"Retry-After": str(retry_after)},
         )
-    if not auth_store.has_user():
+    if not auth_store.has_users():
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="No user configured. Run `python -m server create-user` on the server.",
+            detail="No users configured. Run `python -m server users add` on the server.",
         )
-    if not auth_store.verify_password(body.username, body.password):
+    user = auth_store.authenticate(body.username, body.password)
+    if user is None:
         login_throttle.record_failure(client)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username or password")
 
     login_throttle.record_success(client)
     user_agent = request.headers.get("User-Agent", "browser")[:100]
-    raw, _ = auth_store.issue_token("session", user_agent, ttl=SESSION_TTL_SECONDS)
+    raw, _ = auth_store.issue_token(user.id, "session", user_agent, ttl=SESSION_TTL_SECONDS)
     response.set_cookie(
         SESSION_COOKIE,
         raw,
@@ -108,22 +111,22 @@ def login(body: LoginRequest, request: Request, response: Response):
         secure=COOKIE_SECURE,
         path="/",
     )
-    return MeResponse(username=auth_store.username or body.username, token_kind="session")
+    return MeResponse(username=user.username, token_kind="session")
 
 
 @auth.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 def logout(request: Request, response: Response):
-    record = auth_store.resolve_token(extract_token(request))
-    if record and record.kind == "session":
-        auth_store.revoke(record.id)
+    resolved = auth_store.resolve_token(extract_token(request))
+    if resolved and resolved[1].kind == "session":
+        auth_store.revoke(resolved[1].id)
     response.delete_cookie(SESSION_COOKIE, path="/", httponly=True, samesite="lax", secure=COOKIE_SECURE)
     response.status_code = status.HTTP_204_NO_CONTENT
     return response
 
 
 @auth.get("/me", response_model=MeResponse)
-def me(record: TokenRecord = Depends(require_auth)):
-    return MeResponse(username=auth_store.username or "", token_kind=record.kind)
+def me(principal: Principal = Depends(require_auth)):
+    return MeResponse(username=principal.user.username, token_kind=principal.token.kind)
 
 
 def _client_base_url(request: Request) -> str:
@@ -155,7 +158,7 @@ def device_token(body: DeviceTokenRequest):
 
 
 @auth.get("/device/{user_code}", response_model=DeviceInfoResponse)
-def device_info(user_code: str, _: TokenRecord = Depends(require_session)):
+def device_info(user_code: str, _: Principal = Depends(require_session)):
     req = device_flow.lookup(user_code)
     if not req:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unknown or expired code")
@@ -167,9 +170,9 @@ def device_info(user_code: str, _: TokenRecord = Depends(require_session)):
 
 
 @auth.post("/device/approve", status_code=status.HTTP_204_NO_CONTENT)
-def device_approve(body: DeviceApproveRequest, _: TokenRecord = Depends(require_session)):
+def device_approve(body: DeviceApproveRequest, principal: Principal = Depends(require_session)):
     try:
-        device_flow.decide(body.user_code, body.approve)
+        device_flow.decide(body.user_code, body.approve, principal.user.id)
     except DeviceFlowError:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unknown or expired code")
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -181,12 +184,12 @@ api = APIRouter(prefix="/api", dependencies=[Depends(require_auth)])
 
 
 @api.get("/projects", response_model=List[Project])
-def get_projects():
+def get_projects(database: ProjectsDatabase = Depends(user_database)):
     return database.get_projects()
 
 
 @api.post("/projects")
-def update_projects(incoming_projects: List[Project]):
+def update_projects(incoming_projects: List[Project], database: ProjectsDatabase = Depends(user_database)):
     try:
         database.save_to_disk(incoming_projects)
     except DatabaseError as e:

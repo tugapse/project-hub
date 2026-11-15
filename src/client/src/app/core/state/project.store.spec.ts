@@ -13,7 +13,7 @@ describe('ProjectStore', () => {
   let store: ProjectStore;
 
   beforeEach(() => {
-    localStorage.removeItem('last-project-id');
+    localStorage.removeItem('last-project-id:');
     TestBed.configureTestingModule({
       providers: [provideHttpClient(), provideHttpClientTesting()],
     });

@@ -25,7 +25,7 @@ The detail popup is designed for deep work, featuring integrated category icons,
 
 * **Client:** Angular — `src/client`
 * **Server:** FastAPI / Python 3 — `src/server` (port 9998 by default)
-* **Data Persistence:** Pydantic-validated JSON storage (`data/projects.json`) with in-memory caching.
+* **Data Persistence:** Pydantic-validated JSON storage, one folder per user (`data/users/<id>/projects.json`), with in-memory caching.
 
 ## 📁 Project Structure
 
@@ -34,7 +34,7 @@ src/
   server/    FastAPI backend (API + serves the built client)
   client/    Angular frontend
 dist/        Angular build output, served by the server (generated)
-data/        projects.json / projects_archived.json / auth.json (generated)
+data/        auth.json + users/<id>/projects*.json (generated)
 examples/    project_hub_client.py — example API client (device login)
 build.sh     Creates .venv, installs deps, builds the client into dist/
 run.sh       Runs the server (API + built client) on port 9998
@@ -47,7 +47,7 @@ run-dev.sh   Runs the server + Angular dev server (port 4200)
 git clone https://github.com/tugapse/project-hub.git
 cd project-hub
 ./build.sh
-cd src && ../.venv/bin/python -m server create-user   # creates the login account
+cd src && ../.venv/bin/python -m server users add <username>   # creates a login account
 ```
 
 ## 🖥️ Usage
@@ -66,7 +66,19 @@ Open http://localhost:4200 (API on 9998).
 
 ## 🔐 Authentication
 
-The app has a single user, created on the server with `python -m server create-user` (run from `src/`, with the venv). The browser signs in with that account (session cookie, valid for 30 days).
+The app supports several users, each with their own projects (stored separately in `data/users/<id>/`; users never see each other's data). Users are managed on the server only — there is no public sign-up (run from `src/`, with the venv):
+
+```bash
+cd src
+../.venv/bin/python -m server users add <username>      # create (asks for the password)
+../.venv/bin/python -m server users list
+../.venv/bin/python -m server users passwd <username>   # change password; signs out their browser sessions
+../.venv/bin/python -m server users remove <username>   # revokes their tokens; data moves to data/deleted/
+```
+
+The browser signs in with one of those accounts (session cookie, valid for 30 days). Usernames are case-insensitive.
+
+**Upgrading from the single-user version:** on the first start, `auth.json` is converted automatically (the existing user and tokens are kept), and `data/projects*.json` are moved into that user's folder.
 
 **API access from code** uses a Bearer token obtained via a *device flow* (like `gh auth login`):
 
@@ -81,7 +93,7 @@ Any HTTP client can then call the API:
 curl -H "Authorization: Bearer $(cat ~/.config/project-hub/token)" http://localhost:9998/api/projects
 ```
 
-Manage tokens on the server (takes effect without a restart):
+Tokens belong to the user who approved them. Manage them on the server (takes effect without a restart):
 
 ```bash
 cd src
@@ -92,8 +104,8 @@ cd src
 **Environment variables:**
 * `PROJECT_HUB_HOST` (default `0.0.0.0`)
 * `PROJECT_HUB_PORT` (default `9998`)
-* `PROJECT_HUB_JSON_FILE` (default `<repo>/data/projects.json`)
-* `PROJECT_HUB_AUTH_FILE` (default `<repo>/data/auth.json`): user and token hashes
+* `PROJECT_HUB_DATA_DIR` (default `<repo>/data`): `auth.json` plus one folder per user
+* `PROJECT_HUB_AUTH_FILE` (default `<data dir>/auth.json`): user and token hashes
 * `PROJECT_HUB_PUBLIC_URL`: public client URL used in device-login links (e.g. `https://example.com/hub/`); defaults to the URL the request came in on
 * `PROJECT_HUB_COOKIE_SECURE` (default `0`): set to `1` when served over HTTPS
 

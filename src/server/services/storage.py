@@ -4,6 +4,10 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+# Holds auth.json and one folder per user under users/<user_id>/.
+DATA_DIR = Path(os.getenv("PROJECT_HUB_DATA_DIR", str(PROJECT_ROOT / "data")))
+
 
 def write_json_atomic(path: Path, data: Any, mode: int | None = None):
     """Writes JSON to a temp file in the same directory, then atomically replaces the target.

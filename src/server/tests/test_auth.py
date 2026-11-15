@@ -9,6 +9,10 @@ from server.services import auth as auth_module
 from .conftest import PASSWORD, USERNAME
 
 
+def _admin_id():
+    return main.auth_store.find_user(USERNAME).id
+
+
 def start_device(client, name="test-script"):
     r = client.post("/api/auth/device/code", json={"client_name": name})
     assert r.status_code == 200
@@ -57,7 +61,7 @@ def test_login_lockout_after_repeated_failures(client):
     assert "Retry-After" in r.headers
 
 
-def test_login_without_user_returns_503(client):
+def test_login_without_users_returns_503(client):
     main.auth_store.path.unlink()
     r = client.post("/api/auth/login", json={"username": USERNAME, "password": PASSWORD})
     assert r.status_code == 503
@@ -124,7 +128,7 @@ def test_approve_requires_session(logged_in):
         "/api/auth/device/approve", json={"user_code": dev["user_code"], "approve": True}
     ).status_code == 401
 
-    raw, _ = main.auth_store.issue_token("api", "other-script")
+    raw, _ = main.auth_store.issue_token(_admin_id(), "api", "other-script")
     r = anonymous().post(
         "/api/auth/device/approve",
         json={"user_code": dev["user_code"], "approve": True},
@@ -134,7 +138,7 @@ def test_approve_requires_session(logged_in):
 
 
 def test_revoked_token_is_rejected(client):
-    raw, record = main.auth_store.issue_token("api", "script")
+    raw, record = main.auth_store.issue_token(_admin_id(), "api", "script")
     headers = {"Authorization": f"Bearer {raw}"}
     assert client.get("/api/projects", headers=headers).status_code == 200
     main.auth_store.revoke(record.id)
@@ -142,7 +146,7 @@ def test_revoked_token_is_rejected(client):
 
 
 def test_cli_revocation_is_picked_up_without_restart(client):
-    raw, record = main.auth_store.issue_token("api", "script")
+    raw, record = main.auth_store.issue_token(_admin_id(), "api", "script")
     headers = {"Authorization": f"Bearer {raw}"}
     # Simulate `python -m server tokens revoke` running in another process.
     cli_store = auth_module.AuthStore(main.auth_store.path)
@@ -153,8 +157,9 @@ def test_cli_revocation_is_picked_up_without_restart(client):
 
 
 def test_auth_file_stores_only_hashes(client):
-    raw, _ = main.auth_store.issue_token("api", "script")
+    raw, _ = main.auth_store.issue_token(_admin_id(), "api", "script")
     content = main.auth_store.path.read_text()
     assert raw not in content
     assert PASSWORD not in content
     assert (main.auth_store.path.stat().st_mode & 0o777) == 0o600
+
