@@ -1,51 +1,69 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Development mode: Python API (port 9998) + Angular dev server with hot reload (port 4200).
+# The Angular dev server proxies /api to the Python server (src/client/proxy.conf.json).
+set -u
 
-# --- CONFIGURATION ---
-ACTIVATE_PYTHON="source .venv/bin/activate" 
-DB_FILE="projects.json"
-BACKEND_PORT=9998
+ROOT=$(dirname -- "$(realpath -- "$0")")
+VENV_PY="$ROOT/.venv/bin/python"
+BACKEND_PORT=${PROJECT_HUB_PORT:-9998}
 FRONTEND_PORT=4200
-
-# --- CLEANUP FUNCTION ---
-cleanup() {
-    echo -e "\n🛑 Shutdown signal received..."
-    echo "🧹 Killing processes on ports $BACKEND_PORT and $FRONTEND_PORT..."
-    
-    # Kill by Port to be 100% sure
-    fuser -k $BACKEND_PORT/tcp > /dev/null 2>&1
-    fuser -k $FRONTEND_PORT/tcp > /dev/null 2>&1
-    
-    echo "✅ System offline."
-    exit 0
-}
-
-# Trap Ctrl+C
-trap cleanup SIGINT
+BACKEND_LOG="$ROOT/backend.log"
+FRONTEND_LOG="$ROOT/frontend.log"
 
 # --- PRE-FLIGHT ---
-if [ ! -f "$DB_FILE" ]; then echo "[]" > "$DB_FILE"; fi
+if [ ! -x "$VENV_PY" ]; then
+  echo "❌ Python environment not found ($ROOT/.venv). Run ./build.sh first."
+  exit 1
+fi
+if [ ! -d "$ROOT/src/client/node_modules" ]; then
+  echo "❌ Client dependencies not installed. Run ./build.sh first."
+  exit 1
+fi
+if [ "$BACKEND_PORT" != 9998 ]; then
+  echo "⚠️  PROJECT_HUB_PORT=$BACKEND_PORT, but the dev proxy targets 9998 (src/client/proxy.conf.json)."
+fi
 
-# Clear old logs
-echo "" > backend.log
-echo "" > frontend.log
+PIDS=()
+cleanup() {
+  echo -e "\n🛑 Stopping..."
+  for pid in "${PIDS[@]}"; do
+    pkill -P "$pid" 2>/dev/null
+    kill "$pid" 2>/dev/null
+  done
+  wait 2>/dev/null
+  echo "✅ System offline."
+  exit 0
+}
+trap cleanup INT TERM
 
-# --- STARTUP ---
-echo "📡 Starting Backend..."
-$ACTIVATE_PYTHON
-python3 server/main.py > backend.log 2>&1 &
+: > "$BACKEND_LOG"
+: > "$FRONTEND_LOG"
 
-echo "💻 Starting Frontend..."
-cd project-hub
-ng serve --host 0.0.0.0 --port $FRONTEND_PORT > ../frontend.log 2>&1 &
-cd ..
+# --- BACKEND ---
+echo "📡 Starting backend on port $BACKEND_PORT..."
+(cd "$ROOT/src" && exec "$VENV_PY" -m server) >> "$BACKEND_LOG" 2>&1 &
+BACKEND_PID=$!
+PIDS+=("$BACKEND_PID")
+
+for _ in $(seq 30); do
+  if ! kill -0 "$BACKEND_PID" 2>/dev/null; then
+    echo "❌ Backend failed to start:"
+    cat "$BACKEND_LOG"
+    exit 1
+  fi
+  curl -s -o /dev/null "http://127.0.0.1:$BACKEND_PORT/api/projects" && break
+  sleep 0.5
+done
+
+# --- FRONTEND ---
+echo "💻 Starting frontend on port $FRONTEND_PORT..."
+(cd "$ROOT/src/client" && exec npx ng serve --host 0.0.0.0 --port "$FRONTEND_PORT") >> "$FRONTEND_LOG" 2>&1 &
+PIDS+=("$!")
 
 echo "---------------------------------------"
-echo "🚀 Trello Suite is LIVE"
-echo "📡 Press Ctrl+C to stop both servers."
+echo "🚀 Open http://localhost:$FRONTEND_PORT"
+echo "📖 Streaming logs (Ctrl+C to stop everything)"
 echo "---------------------------------------"
-echo "📖 Streaming logs (Ctrl+C to stop everything):"
-echo "---------------------------------------"
-
-# This command "waits" by following the logs. 
-# When you Ctrl+C, the trap triggers.
-tail -f backend.log -f frontend.log
+tail -f "$BACKEND_LOG" "$FRONTEND_LOG" &
+PIDS+=("$!")
+wait

@@ -29,15 +29,15 @@ echo "Activating environment..."
 source .venv/bin/activate
 
 # install server deps
-if [ -f "server/requirements.txt" ]; then
+if [ -f "src/server/requirements.txt" ]; then
   echo "Installing server dependencies..."
-  pip install -r server/requirements.txt
+  pip install -r src/server/requirements.txt
 fi
 
-# go to ./project-hub folder and install deps 
-echo "Navigating to ./project-hub in a subshell..."
+# go to ./src/client folder and install deps 
+echo "Navigating to ./src/client in a subshell..."
 (
-  cd ./project-hub || exit
+  cd ./src/client || exit
   echo "Installing Node dependencies..."
   npm install
   echo "Building Angular project for the server..."

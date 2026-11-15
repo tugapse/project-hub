@@ -23,51 +23,51 @@ The detail popup is designed for deep work, featuring integrated category icons,
 
 ## 🛠️ Technical Stack
 
-* **Frontend:** Angular (running on port 4200)
-* **Backend:** FastAPI / Python 3 (running on port 8000)
-* **Data Persistence:** Pydantic-validated JSON storage (projects.json) with in-memory caching.
+* **Client:** Angular — `src/client`
+* **Server:** FastAPI / Python 3 — `src/server` (port 9998 by default)
+* **Data Persistence:** Pydantic-validated JSON storage (`data/projects.json`) with in-memory caching.
+
+## 📁 Project Structure
+
+```
+src/
+  server/    FastAPI backend (API + serves the built client)
+  client/    Angular frontend
+dist/        Angular build output, served by the server (generated)
+data/        projects.json / projects_archived.json (generated)
+build.sh     Creates .venv, installs deps, builds the client into dist/
+run.sh       Runs the server (API + built client) on port 9998
+run-dev.sh   Runs the server + Angular dev server (port 4200)
+```
 
 ## 📦 Installation & Setup
 
-Before running, ensure you have a Python virtual environment configured in the root directory.
-
-1. **Clone the repository:**
 ```bash
-   git clone https://github.com/tugapse/project-hub.git
-   cd project-hub
-```
-
-2. **Prepare Backend (Python 3.10+):**
-```bash
-   python3 -m venv .venv
-   source .venv/bin/activate
-   pip install fastapi uvicorn pydantic
-```
-
-3. **Install Frontend:**
-```bash
-   cd project-hub
-   npm install
-   cd ..
+git clone https://github.com/tugapse/project-hub.git
+cd project-hub
+./build.sh
 ```
 
 ## 🖥️ Usage
 
-The project includes a custom automation script (run.sh) to manage the full-stack lifecycle and port allocation.
-
-**To start the application:**
+**Production-style (single process):**
 ```bash
-chmod +x run.sh
 ./run.sh
 ```
+Open http://localhost:9998.
 
-**Automated Workflow:**
-* **Database Check:** Initializes projects.json if not present.
-* **Backend Startup:** Launches the FastAPI server at http://0.0.0.0:8000.
-* **Frontend Startup:** Launches the Angular Dev Server at http://localhost:4200.
-* **Persistence:** Every board update is synced from memory to projects.json in a human-readable format.
+**Development (hot reload):**
+```bash
+./run-dev.sh
+```
+Open http://localhost:4200 (API on 9998).
 
-**To stop:** Press Ctrl+C. The script's cleanup() function will trap the signal and kill both server processes automatically to prevent port hanging.
+**Environment variables:**
+* `PROJECT_HUB_HOST` (default `0.0.0.0`)
+* `PROJECT_HUB_PORT` (default `9998`)
+* `PROJECT_HUB_JSON_FILE` (default `<repo>/data/projects.json`)
+
+**To stop:** Press Ctrl+C. The scripts trap the signal and free the ports.
 
 ---
 *Created as part of a personal tooling and learning.*
