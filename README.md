@@ -112,6 +112,10 @@ cd src
 
 **To stop:** Press Ctrl+C. The scripts trap the signal and free the ports.
 
+## 📝 Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
+
 ## 🍓 Deploy
 
 To run it as a service behind nginx (e.g. on a Raspberry Pi), see [deploy/README.md](deploy/README.md).
