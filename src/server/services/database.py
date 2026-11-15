@@ -5,7 +5,8 @@ from pathlib import Path
 from typing import List
 from entities.dto import Project, ProjectStatus
 
-PROJECTS_JSON_FILE = os.getenv("PROJECT_HUB_JSON_FILE", "./data/projects.json")
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+PROJECTS_JSON_FILE = os.getenv("PROJECT_HUB_JSON_FILE", str(PROJECT_ROOT / "data" / "projects.json"))
 ARCHIVED_PROJECTS_JSON_FILE = f"{PROJECTS_JSON_FILE.rsplit('.', 1)[0]}_archived.json"
 
 DB_FILE = Path(PROJECTS_JSON_FILE)

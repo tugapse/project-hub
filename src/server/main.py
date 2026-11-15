@@ -11,8 +11,6 @@ from entities.dto import Project
 from middleware import MIMETypeFixerMiddleware
 from services.database import ProjectsDatabase
 
-from services.database import ProjectsDatabase
-
 # --- Configuration ---
 # Use environment variable or default to a local path
 
@@ -41,7 +39,7 @@ def update_projects(incoming_projects: List[Project]):
     database.save_to_disk(incoming_projects)
     return {"status": "success", "count": len(database.get_projects())}
 
-FRONTEND_BUILD_DIR = Path(__file__).resolve().parent.parent / "frontend"
+FRONTEND_BUILD_DIR = Path(__file__).resolve().parents[2] / "dist"
 
 if FRONTEND_BUILD_DIR.is_dir():
     app.mount("/", StaticFiles(directory=FRONTEND_BUILD_DIR, html=True), name="static_app")

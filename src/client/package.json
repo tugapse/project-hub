@@ -7,8 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "build-to-server": "ng build && mkdir -p ../frontend && rm -rf ../frontend/* && cp -r dist/project-hub/browser/* ../frontend/",
-    "build-to-server-hub": "ng build --base-href /hub/ && mkdir -p ../frontend && rm -rf ../frontend/* && cp -r dist/project-hub/browser/* ../frontend/"
+    "build-to-server": "ng build",
+    "build-to-server-hub": "ng build --base-href /hub/"
   },
   "prettier": {
     "printWidth": 100,
