@@ -9,18 +9,9 @@ import { Project, Task } from '../entities/interfaces';
 })
 export class ApiService {
   
-  private get API_URL(){
-    const host = window.location.hostname;
-    const port = window.location.port;
-    const pathname = window.location.pathname;
-
-
-    if(host === 'localhost' && port === '4200'){
-      return 'http://localhost:9998/projects';
-    } 
-
-    return `http://${host}${ port ? ':' + port : '' }${pathname}projects`;
-  } 
+  // Relative to the document <base href>, so it works at "/" and behind a sub-path like "/hub/".
+  // In dev, `ng serve` proxies /api to the Python server (see proxy.conf.json).
+  private readonly API_URL = 'api/projects';
 
   constructor(private http: HttpClient) { }
 
@@ -43,7 +34,6 @@ export class ApiService {
   }
 
   private buildTask(task:Task){
-    console.log(task);
     return { ...task, checklistTitle: task.checklistTitle || 'Todo :', checklist: task.checklist || [] }
   }
 

@@ -18,7 +18,6 @@ class Task(BaseModel):
     description: Optional[str] = ""
     color: Optional[str] = "#ccc"
     icon: Optional[str] = "📄"
-    isEditing: Optional[bool] = False
     checklistTitle:Optional[str] = "" 
     checklist: Optional[List[ChecklistItem]] = []
     notes: Optional[str] = ""

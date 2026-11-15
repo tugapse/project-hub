@@ -29,7 +29,7 @@ echo "" > frontend.log
 # --- STARTUP ---
 echo "📡 Starting Backend..."
 $ACTIVATE_PYTHON
-python3 src/server/main.py > backend.log 2>&1 &
+(cd src && python3 -m server) > backend.log 2>&1 &
 
 echo "💻 Starting Frontend..."
 cd src/client
