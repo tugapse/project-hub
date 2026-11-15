@@ -1,36 +1,50 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Runs the Python server, which serves both the API and the built client (./build.sh).
+set -u
 
-# --- CONFIGURATION ---
-FOLDER=$(dirname -- $(realpath -- "$0"))
-ACTIVATE_PYTHON="source $FOLDER/.venv/bin/activate"
+ROOT=$(dirname -- "$(realpath -- "$0")")
+VENV_PY="$ROOT/.venv/bin/python"
+BACKEND_PORT=${PROJECT_HUB_PORT:-9998}
+BACKEND_LOG="$ROOT/backend.log"
 
-BACKEND_PORT=9998
+if [ ! -x "$VENV_PY" ]; then
+  echo "❌ Python environment not found ($ROOT/.venv). Run ./build.sh first."
+  exit 1
+fi
+if [ ! -f "$ROOT/dist/index.html" ]; then
+  echo "⚠️  Client build not found in $ROOT/dist — only the API will be available. Run ./build.sh."
+fi
 
-# --- CLEANUP FUNCTION ---
+PIDS=()
 cleanup() {
-    echo -e "\n🛑 Shutdown signal received..."
-    echo "🧹 Killing processes on ports $BACKEND_PORT ..."
-    
-    # Kill by Port to be 100% sure
-    fuser -k $BACKEND_PORT/tcp > /dev/null 2>&1
-    
-    echo "✅ System offline."
-    exit 0
+  echo -e "\n🛑 Stopping..."
+  for pid in "${PIDS[@]}"; do kill "$pid" 2>/dev/null; done
+  wait 2>/dev/null
+  echo "✅ System offline."
+  exit 0
 }
+trap cleanup INT TERM
 
-# Trap Ctrl+C
-trap cleanup SIGINT
+: > "$BACKEND_LOG"
 
-# Clear old logs
-echo "" > backend.log
+echo "📡 Starting server on port $BACKEND_PORT..."
+(cd "$ROOT/src" && exec "$VENV_PY" -m server) >> "$BACKEND_LOG" 2>&1 &
+BACKEND_PID=$!
+PIDS+=("$BACKEND_PID")
 
-# --- STARTUP ---
-echo "📡 Starting Backend..."
-$ACTIVATE_PYTHON
+for _ in $(seq 30); do
+  if ! kill -0 "$BACKEND_PID" 2>/dev/null; then
+    echo "❌ Server failed to start:"
+    cat "$BACKEND_LOG"
+    exit 1
+  fi
+  curl -s -o /dev/null "http://127.0.0.1:$BACKEND_PORT/api/projects" && break
+  sleep 0.5
+done
 
-(cd "$FOLDER/src" && python3 -m server) > backend.log 2>&1 &
-
-echo "📖 Streaming logs (Ctrl+C to stop everything):"
+echo "🚀 Open http://localhost:$BACKEND_PORT"
+echo "📖 Streaming logs (Ctrl+C to stop)"
 echo "---------------------------------------"
-
-tail -f backend.log 
+tail -f "$BACKEND_LOG" &
+PIDS+=("$!")
+wait
