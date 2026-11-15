@@ -1,17 +1,34 @@
 import { Component, Input, Output, EventEmitter, HostBinding } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ProjectStatus, Project, Task, Column } from '../../core/models';
+import { PROJECT_STATUS_LABELS, ProjectStatus, Project, Task, Column } from '../../core/models';
+import { ProjectStatusIconComponent } from '../../shared/project-status-icon/project-status-icon.component';
 import {
   CdkDragDrop,
   DragDropModule,
   moveItemInArray,
+  transferArrayItem,
 } from '@angular/cdk/drag-drop';
+
+type SidebarTab = 'active' | 'archived';
+
+interface ProjectGroup {
+  status: ProjectStatus;
+  /** Section heading; null for the main (unlabelled) group of a tab. */
+  label: string | null;
+  projects: Project[];
+}
+
+/** Which statuses each tab shows, in display order. */
+const TAB_STATUSES: Record<SidebarTab, ProjectStatus[]> = {
+  active: [ProjectStatus.ACTIVE, ProjectStatus.NOT_STARTED],
+  archived: [ProjectStatus.ARCHIVED],
+};
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [ CommonModule, FormsModule, DragDropModule ],
+  imports: [CommonModule, FormsModule, DragDropModule, ProjectStatusIconComponent],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })
@@ -24,16 +41,11 @@ export class SidebarComponent {
   @Output() projectAdded = new EventEmitter<string>();
   @Output() projectDeleted = new EventEmitter<Project>();
   @Output() projectUpdated = new EventEmitter<void>();
+  @Output() projectStatusChanged = new EventEmitter<{ project: Project; status: ProjectStatus }>();
 
   newProjectName = '';
   editingProject: Project | null = null;
-  _ProjectStatus = ProjectStatus;
-  selectedProjectStatus: ProjectStatus = ProjectStatus.ACTIVE;
-
-  
-
-
-
+  selectedTab: SidebarTab = 'active';
 
   @HostBinding('class.collapsed')
   get isDone() {
@@ -99,27 +111,46 @@ export class SidebarComponent {
     this.editingProject = null;
   }
 
-  get displayedProjects(): Project[] {
-    return this.projects.filter(p => p.status === this.selectedProjectStatus);
+  get groups(): ProjectGroup[] {
+    return TAB_STATUSES[this.selectedTab].map((status, index) => ({
+      status,
+      label: index === 0 ? null : PROJECT_STATUS_LABELS[status],
+      projects: this.projects.filter((p) => p.status === status),
+    }));
   }
 
-  drop(event: CdkDragDrop<Project[]>) {
-    // Create a mutable copy of the displayed projects array
-    const reorderedDisplayedList = [...this.displayedProjects];
-    
-    // Apply the move to the copy
-    moveItemInArray(reorderedDisplayedList, event.previousIndex, event.currentIndex);
+  selectTab(tab: SidebarTab, event: Event) {
+    event.preventDefault();
+    this.selectedTab = tab;
+  }
 
-    // Get all projects that are not in the current filtered view
-    const otherProjects = this.projects.filter(p => p.status !== this.selectedProjectStatus);
-    
-    // Reconstruct the full list: the reordered part first, then the rest
-    const newList = [...reorderedDisplayedList, ...otherProjects];
+  /**
+   * Reorders projects within a group, or moves one between groups of the same
+   * tab (which also changes its status, e.g. Not started -> Active).
+   */
+  drop(event: CdkDragDrop<Project[]>, targetStatus: ProjectStatus) {
+    const groups = this.groups;
+    const lists = new Map(groups.map((g) => [g.status, [...g.projects]]));
+    const source = lists.get(event.item.data.status as ProjectStatus)!;
+    const target = lists.get(targetStatus)!;
 
-    // Update the original projects array in-place to maintain the object reference
+    if (source === target) {
+      moveItemInArray(target, event.previousIndex, event.currentIndex);
+    } else {
+      transferArrayItem(source, target, event.previousIndex, event.currentIndex);
+    }
+
+    // Visible groups in display order first, then every project from other tabs.
+    const visibleStatuses = groups.map((g) => g.status);
+    const others = this.projects.filter((p) => !visibleStatuses.includes(p.status));
+    const newList = [...visibleStatuses.flatMap((status) => lists.get(status)!), ...others];
     this.projects.splice(0, this.projects.length, ...newList);
 
-    // Emit event to notify parent component to persist the changes
-    this.projectUpdated.emit();
+    const moved: Project = event.item.data;
+    if (moved.status !== targetStatus) {
+      this.projectStatusChanged.emit({ project: moved, status: targetStatus });
+    } else {
+      this.projectUpdated.emit();
+    }
   }
 }

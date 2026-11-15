@@ -72,8 +72,45 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
   width: 100%;
-  margin-bottom: 8px; /* Space between header and progress bar */
+}
+
+.project-item-header + .progress-bar-container {
+  margin-top: 8px; /* Space between header and progress bar */
+}
+
+.project-item.not-started {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.project-item.not-started:not(.active) .project-name {
+  color: var(--text-muted);
+}
+
+.group-header {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  margin: 18px 0 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+/* Keep empty groups droppable so projects can be dragged into them. */
+.project-group.empty {
+  min-height: 12px;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}
+
+.cdk-drop-list-dragging .project-item:not(.cdk-drag-placeholder) {
+  transition: transform 0.2s ease;
 }
 
 .project-item.active {

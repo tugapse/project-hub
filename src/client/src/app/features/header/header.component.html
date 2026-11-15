@@ -4,13 +4,23 @@
       <ng-container *ngIf="currentProject">
         <h1>{{ currentProject.name }}</h1>
       </ng-container>
-      <div class="archive-toggle">
-        <span class="archive-toggle-label">{{ isProjectArchived ? 'Set to Active' : 'Archive Project' }}</span>
-        <label class="archive-toggle-switch">
-          <input type="checkbox" [checked]="isProjectArchived" (change)="onToggleProjectState()">
-          <span class="archive-toggle-slider"></span>
-        </label>
-      </div>
+      @if (currentProject) {
+        <div class="status-switch" role="radiogroup" aria-label="Project status">
+          @for (status of statuses; track status) {
+            <button
+              type="button"
+              role="radio"
+              class="status-option"
+              [class.selected]="currentProject.status === status"
+              [attr.aria-checked]="currentProject.status === status"
+              (click)="statusChanged.emit(status)"
+            >
+              <app-project-status-icon [status]="status" />
+              {{ statusLabels[status] }}
+            </button>
+          }
+        </div>
+      }
     </div>
     <div class="status-pill" *ngIf="syncState" [ngClass]="syncState" [title]="syncState === 'error' ? 'An error occurred during sync' : null">
       <span class="dot"></span>

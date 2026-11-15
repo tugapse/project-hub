@@ -85,10 +85,30 @@ export class ProjectStore {
         { id: 'doing', title: 'Doing', tasks: [] },
         { id: 'done', title: 'Done', tasks: [] },
       ],
-      status: ProjectStatus.ACTIVE,
+      status: ProjectStatus.NOT_STARTED,
     };
     this.projects.update((list) => [...list, project]);
     this.select(project);
+    this.save();
+  }
+
+  setStatus(project: Project, status: ProjectStatus) {
+    if (project.status === status) return;
+    project.status = status;
+    this.projects.update((list) => [...list]);
+    this.save();
+  }
+
+  /**
+   * Call after tasks are added or moved on the board. A not-started project
+   * becomes active as soon as any task leaves the first column.
+   */
+  boardChanged() {
+    const project = this.currentProject();
+    if (project?.status === ProjectStatus.NOT_STARTED && hasStarted(project)) {
+      project.status = ProjectStatus.ACTIVE;
+      this.projects.update((list) => [...list]);
+    }
     this.save();
   }
 
@@ -123,4 +143,8 @@ export class ProjectStore {
       this.save();
     }
   }
+}
+
+function hasStarted(project: Project): boolean {
+  return project.columns.slice(1).some((column) => column.tasks.length > 0);
 }

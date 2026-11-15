@@ -8,11 +8,13 @@
   <app-sidebar [isCollapsed]="isSidebarCollapsed()" [projects]="store.projects()"
     [currentProject]="store.currentProject()" (projectSelected)="store.select($event)"
     (projectAdded)="store.add($event)" (projectDeleted)="store.delete($event)"
-    (projectUpdated)="store.save()"></app-sidebar>
+    (projectUpdated)="store.save()"
+    (projectStatusChanged)="store.setStatus($event.project, $event.status)"></app-sidebar>
 
   @if (store.currentProject(); as project) {
     <app-main-view class="main-content" [currentProject]="project" [syncState]="store.syncState()"
-      [isDarkMode]="theme.isDarkMode()" (themeToggled)="theme.toggle()" (stateChanged)="store.save()"
+      [isDarkMode]="theme.isDarkMode()" (themeToggled)="theme.toggle()" (boardChanged)="store.boardChanged()"
+      (statusChanged)="store.setStatus(project, $event)"
       (taskOpened)="openTask($event)"
       (taskDeleted)="store.deleteTask($event.column, $event.task)"></app-main-view>
   }

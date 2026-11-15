@@ -3,15 +3,14 @@
     [currentProject]="currentProject"
     [syncState]="syncState"
     [isDarkMode]="isDarkMode"
-    [isProjectArchived]="isProjectArchived"
-    (themeToggled)="onToggleTheme()"
-    (projectStateToggled)="onToggleProjectState()"
+    (themeToggled)="themeToggled.emit()"
+    (statusChanged)="statusChanged.emit($event)"
   ></app-header>
 
   <app-board
     [currentProject]="currentProject"
-    (stateChanged)="onStateChanged()"
-    (taskOpened)="onTaskOpened($event)"
-    (taskDeleted)="onTaskDeleted($event)"
+    (stateChanged)="boardChanged.emit()"
+    (taskOpened)="taskOpened.emit($event)"
+    (taskDeleted)="taskDeleted.emit($event)"
   ></app-board>
 </main>

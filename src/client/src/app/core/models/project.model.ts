@@ -32,3 +32,9 @@ export interface Project {
   columns: Column[];
   status: ProjectStatus;
 }
+
+export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
+  [ProjectStatus.NOT_STARTED]: 'Not started',
+  [ProjectStatus.ACTIVE]: 'Active',
+  [ProjectStatus.ARCHIVED]: 'Archived',
+};
