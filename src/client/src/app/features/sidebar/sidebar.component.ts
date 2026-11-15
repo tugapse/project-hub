@@ -1,7 +1,8 @@
-import { Component, Input, Output, EventEmitter, HostBinding } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostBinding, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PROJECT_STATUS_LABELS, ProjectStatus, Project, Task, Column } from '../../core/models';
+import { ConfirmService } from '../../core/services/confirm.service';
 import { ProjectStatusIconComponent } from '../../shared/project-status-icon/project-status-icon.component';
 import {
   CdkDragDrop,
@@ -33,6 +34,8 @@ const TAB_STATUSES: Record<SidebarTab, ProjectStatus[]> = {
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent {
+  private readonly confirm = inject(ConfirmService);
+
   @Input() projects: Project[] = [];
   @Input() currentProject: Project | null = null;
   @Input() isCollapsed = false;
@@ -87,9 +90,13 @@ export class SidebarComponent {
     this.projectUpdated.emit();
   }
 
-  deleteProject(project: Project, event: MouseEvent) {
+  async deleteProject(project: Project, event: MouseEvent) {
     event.stopPropagation(); // Prevent selectProject from being called
-    if (confirm(`Are you sure you want to delete project "${project.name}"?`)) {
+    const confirmed = await this.confirm.confirm({
+      title: 'Delete project',
+      message: `Are you sure you want to delete project "${project.name}"? This cannot be undone.`,
+    });
+    if (confirmed) {
       this.projectDeleted.emit(project);
     }
   }

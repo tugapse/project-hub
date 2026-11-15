@@ -1,0 +1,35 @@
+<div class="card">
+  @switch (state()) {
+    @case ('loading') {
+      <p>Loading request…</p>
+    }
+    @case ('pending') {
+      <h1>Authorize access</h1>
+      <p>
+        <strong>{{ device()?.client_name }}</strong> is requesting access to your Project Hub API.
+        Approve only if this code matches the one shown by your script.
+      </p>
+      <div class="code">{{ device()?.user_code }}</div>
+      <div class="actions">
+        <button type="button" [disabled]="busy()" (click)="decide(false)">Deny</button>
+        <button type="button" class="primary" [disabled]="busy()" (click)="decide(true)">Approve</button>
+      </div>
+    }
+    @case ('approved') {
+      <h1>Access granted</h1>
+      <p>The script has received its token. You can close this window.</p>
+      <div class="actions"><button type="button" (click)="done.emit()">Go to Project Hub</button></div>
+    }
+    @case ('denied') {
+      <h1>Access denied</h1>
+      <p>The request was rejected. You can close this window.</p>
+      <div class="actions"><button type="button" (click)="done.emit()">Go to Project Hub</button></div>
+    }
+    @case ('error') {
+      <h1>Request not found</h1>
+      <p class="error">{{ error() }}</p>
+      <p>Run the login command again to get a new code.</p>
+      <div class="actions"><button type="button" (click)="done.emit()">Go to Project Hub</button></div>
+    }
+  }
+</div>

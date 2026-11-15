@@ -1,24 +1,40 @@
-<div class="app-wrapper" [class.sidebar-collapsed]="isSidebarCollapsed()">
-  <button (click)="toggleSidebar()" class="sidebar-toggle-btn">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-    </svg>
-  </button>
-
-  <app-sidebar [isCollapsed]="isSidebarCollapsed()" [projects]="store.projects()"
-    [currentProject]="store.currentProject()" (projectSelected)="store.select($event)"
-    (projectAdded)="store.add($event)" (projectDeleted)="store.delete($event)"
-    (projectUpdated)="store.save()"
-    (projectStatusChanged)="store.setStatus($event.project, $event.status)"></app-sidebar>
-
-  @if (store.currentProject(); as project) {
-    <app-main-view class="main-content" [currentProject]="project" [syncState]="store.syncState()"
-      [isDarkMode]="theme.isDarkMode()" (themeToggled)="theme.toggle()" (boardChanged)="store.boardChanged()"
-      (statusChanged)="store.setStatus(project, $event)"
-      (taskOpened)="openTask($event)"
-      (taskDeleted)="store.deleteTask($event.column, $event.task)"></app-main-view>
+@switch (auth.status()) {
+  @case ('unknown') {
+    <div class="auth-loading"></div>
   }
+  @case ('anonymous') {
+    <app-login></app-login>
+  }
+  @case ('authenticated') {
+    @if (deviceUserCode(); as code) {
+      <app-device-approve [userCode]="code" (done)="closeDeviceApproval()"></app-device-approve>
+    } @else {
+      <div class="app-wrapper" [class.sidebar-collapsed]="isSidebarCollapsed()">
+        <button (click)="toggleSidebar()" class="sidebar-toggle-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+          </svg>
+        </button>
 
-  <task-modal [showPopup]="editingTask() !== null" [editingTask]="editingTask()" (close)="closeTask()"
-    (update)="saveTask($event)"></task-modal>
-</div>
+        <app-sidebar [isCollapsed]="isSidebarCollapsed()" [projects]="store.projects()"
+          [currentProject]="store.currentProject()" (projectSelected)="store.select($event)"
+          (projectAdded)="store.add($event)" (projectDeleted)="store.delete($event)"
+          (projectUpdated)="store.save()"
+          (projectStatusChanged)="store.setStatus($event.project, $event.status)"></app-sidebar>
+
+        @if (store.currentProject(); as project) {
+          <app-main-view class="main-content" [currentProject]="project" [syncState]="store.syncState()"
+            [isDarkMode]="theme.isDarkMode()" (themeToggled)="theme.toggle()" (boardChanged)="store.boardChanged()"
+            (statusChanged)="store.setStatus(project, $event)"
+            (taskOpened)="openTask($event)"
+            (taskDeleted)="store.deleteTask($event.column, $event.task)"></app-main-view>
+        }
+
+        <task-modal [showPopup]="editingTask() !== null" [editingTask]="editingTask()" (close)="closeTask()"
+          (update)="saveTask($event)"></task-modal>
+      </div>
+    }
+  }
+}
+
+<app-confirm-dialog></app-confirm-dialog>

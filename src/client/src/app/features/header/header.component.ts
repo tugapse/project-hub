@@ -1,5 +1,6 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../core/services/auth.service';
 import { PROJECT_STATUS_LABELS, Project, ProjectStatus, SyncState } from '../../core/models';
 import { ProjectStatusIconComponent } from '../../shared/project-status-icon/project-status-icon.component';
 
@@ -11,6 +12,8 @@ import { ProjectStatusIconComponent } from '../../shared/project-status-icon/pro
   styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent {
+  readonly auth = inject(AuthService);
+
   @Input() currentProject: Project | null = null;
   @Input() syncState: SyncState | null = null;
   @Input() isDarkMode = false;

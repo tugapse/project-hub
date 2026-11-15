@@ -36,5 +36,8 @@
     <button (click)="onToggleTheme()" class="theme-toggle">
       {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}
     </button>
+    <button (click)="auth.logout()" class="theme-toggle" [title]="'Signed in as ' + auth.username()">
+      Log out
+    </button>
   </div>
 </header>
