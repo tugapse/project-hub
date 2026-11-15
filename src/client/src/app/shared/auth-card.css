@@ -1,0 +1,104 @@
+/* Shared layout for the full-screen auth views (login, device approval). */
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 16px;
+  box-sizing: border-box;
+  background: var(--bg-main);
+  color: var(--text-main);
+}
+
+.card {
+  width: 100%;
+  max-width: 360px;
+  padding: 32px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-sidebar);
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+input {
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--bg-column);
+  background: var(--input-bg);
+  color: var(--text-main);
+  font-size: 14px;
+}
+
+input:focus {
+  outline: 2px solid var(--neon-blue);
+  outline-offset: -1px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+button {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg-column);
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button.primary {
+  background: var(--neon-blue);
+  border-color: var(--neon-blue);
+  color: #0b0f19;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.error {
+  color: var(--neon-red);
+  font-size: 0.85rem;
+}
+
+.code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-align: center;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--bg-column);
+  color: var(--text-main);
+}

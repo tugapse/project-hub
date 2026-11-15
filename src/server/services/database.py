@@ -1,10 +1,10 @@
 import json
 import os
-import tempfile
 from pathlib import Path
 from typing import List
 
 from ..entities.dto import Project, ProjectStatus
+from .storage import write_json_atomic
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 PROJECTS_JSON_FILE = os.getenv("PROJECT_HUB_JSON_FILE", str(PROJECT_ROOT / "data" / "projects.json"))
@@ -71,16 +71,4 @@ class ProjectsDatabase:
 
     @staticmethod
     def _write_json_atomic(path: Path, projects: List[Project]):
-        """Writes to a temp file in the same directory, then atomically replaces the target."""
-        path.parent.mkdir(parents=True, exist_ok=True)
-        data = [p.model_dump(mode="json") for p in projects]
-        fd, tmp_name = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.", suffix=".tmp")
-        try:
-            with os.fdopen(fd, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=4)
-                f.flush()
-                os.fsync(f.fileno())
-            os.replace(tmp_name, path)
-        except BaseException:
-            Path(tmp_name).unlink(missing_ok=True)
-            raise
+        write_json_atomic(path, [p.model_dump(mode="json") for p in projects])

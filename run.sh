@@ -38,7 +38,7 @@ for _ in $(seq 30); do
     cat "$BACKEND_LOG"
     exit 1
   fi
-  curl -s -o /dev/null "http://127.0.0.1:$BACKEND_PORT/api/projects" && break
+  curl -s -o /dev/null "http://127.0.0.1:$BACKEND_PORT/api/health" && break
   sleep 0.5
 done
 

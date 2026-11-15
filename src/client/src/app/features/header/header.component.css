@@ -85,6 +85,8 @@ header {
 }
 
 .header-right {
+  display: flex;
+  gap: 8px;
   padding-top: 4px;
 }
 

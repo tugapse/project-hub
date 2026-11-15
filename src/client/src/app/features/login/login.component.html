@@ -1,0 +1,23 @@
+<form class="card" (ngSubmit)="submit()">
+  <h1>Project Hub</h1>
+  <p>Sign in to continue.</p>
+
+  <label>
+    Username
+    <input name="username" autocomplete="username" [(ngModel)]="username" required autofocus />
+  </label>
+  <label>
+    Password
+    <input name="password" type="password" autocomplete="current-password" [(ngModel)]="password" required />
+  </label>
+
+  @if (error(); as message) {
+    <div class="error" role="alert">{{ message }}</div>
+  }
+
+  <div class="actions">
+    <button type="submit" class="primary" [disabled]="busy() || !username || !password">
+      {{ busy() ? 'Signing in…' : 'Sign in' }}
+    </button>
+  </div>
+</form>
