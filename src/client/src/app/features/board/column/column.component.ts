@@ -1,8 +1,9 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DragDropModule, CdkDropList, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { TaskCardComponent } from '../task-card/task-card.component';
 import { Column, Task } from '../../../core/models';
+import { ConfirmService } from '../../../core/services/confirm.service';
 
 @Component({
   selector: 'app-column',
@@ -12,6 +13,8 @@ import { Column, Task } from '../../../core/models';
   styleUrls: ['./column.component.css'],
 })
 export class ColumnComponent {
+  private readonly confirm = inject(ConfirmService);
+
   @Input() column: Column | null = null;
   @Input() cdkDropListConnectedTo: CdkDropList[] = [];
 
@@ -24,9 +27,15 @@ export class ColumnComponent {
     this.taskOpened.emit(task);
   }
 
-  deleteTask(task: Task) {
-    if (this.column) {
-      this.taskDeleted.emit({ column: this.column, task });
+  async deleteTask(task: Task) {
+    const column = this.column;
+    if (!column) return;
+    const confirmed = await this.confirm.confirm({
+      title: 'Delete task',
+      message: `Are you sure you want to delete task "${task.content}"?`,
+    });
+    if (confirmed) {
+      this.taskDeleted.emit({ column, task });
     }
   }
 

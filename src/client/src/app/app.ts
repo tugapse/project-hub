@@ -9,11 +9,19 @@ import { LoginComponent } from './features/login/login.component';
 import { MainViewComponent } from './features/main-view/main-view.component';
 import { SidebarComponent } from './features/sidebar/sidebar.component';
 import { TaskModalComponent } from './features/task-modal/task-modal.component';
+import { ConfirmDialogComponent } from './shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [TaskModalComponent, SidebarComponent, MainViewComponent, LoginComponent, DeviceApproveComponent],
+  imports: [
+    TaskModalComponent,
+    SidebarComponent,
+    MainViewComponent,
+    LoginComponent,
+    DeviceApproveComponent,
+    ConfirmDialogComponent,
+  ],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
 })

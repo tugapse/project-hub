@@ -1,8 +1,9 @@
 import { CdkDragDrop, moveItemInArray, DragDropModule } from "@angular/cdk/drag-drop";
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, Output, inject } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { TASK_COLORS, TASK_ICONS, Task, ChecklistItem } from '../../core/models';
+import { ConfirmService } from '../../core/services/confirm.service';
 
 @Component({
   selector: 'task-modal',
@@ -12,6 +13,7 @@ import { TASK_COLORS, TASK_ICONS, Task, ChecklistItem } from '../../core/models'
   styleUrls: ['./task-modal.component.css'],
 })
 export class TaskModalComponent {
+  private readonly confirm = inject(ConfirmService);
 
   drop(event: CdkDragDrop<ChecklistItem[]>) {
     if (this.editingTask && this.editingTask.checklist) {
@@ -37,9 +39,19 @@ export class TaskModalComponent {
     }
   }
 
-  deleteChecklistItem(index: number) {
-    if (this.editingTask && this.editingTask.checklist) {
-      this.editingTask.checklist.splice(index, 1);
+  async deleteChecklistItem(item: ChecklistItem) {
+    const checklist = this.editingTask?.checklist;
+    if (!checklist) return;
+    const confirmed = await this.confirm.confirm({
+      title: 'Delete item',
+      message: item.text
+        ? `Are you sure you want to delete "${item.text}"?`
+        : 'Are you sure you want to delete this item?',
+    });
+    // Look the item up again: the list may have been reordered while the dialog was open.
+    const index = checklist.indexOf(item);
+    if (confirmed && index !== -1) {
+      checklist.splice(index, 1);
     }
   }
 

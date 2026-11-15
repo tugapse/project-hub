@@ -30,7 +30,7 @@
             <div *ngFor="let item of editingTask.checklist; let i = index" class="checklist-item" cdkDrag>
               <input type="checkbox" [(ngModel)]="item.completed">
               <input type="text" class="checklist-item-text" [(ngModel)]="item.text">
-              <button (click)="deleteChecklistItem(i)" class="delete-checklist-item"></button>
+              <button (click)="deleteChecklistItem(item)" class="delete-checklist-item"></button>
             </div>
           </div>
           <div class="add-checklist-item">
